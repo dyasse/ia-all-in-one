@@ -195,6 +195,7 @@ export function ArchitectureGuide() {
         </li>
         <li>Create backend route in <code>app/api/generate/route.ts</code> for secure generation.</li>
         <li>Set OpenAI/Anthropic API keys in Vercel Environment Variables before deploy.</li>
+        <li>Deploy with Vercel.</li>
       </ol>
       <p className="guide-paths">
         Structure: <code>/components</code>, <code>/lib</code>, <code>/app/api</code>, <code>/types</code>.
