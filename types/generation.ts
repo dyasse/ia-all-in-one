@@ -1,13 +1,6 @@
-export type OutputType =
-  | 'website'
-  | 'mobile-app'
-  | 'image'
-  | 'video'
-  | 'backend-api'
-  | 'automation'
-  | 'marketing-copy';
+export type OutputType = 'web' | 'mobile' | 'image' | 'video';
 
-export type Locale = 'en' | 'ar' | 'fr';
+export type Locale = 'darija' | 'ar' | 'en';
 
 export type ProviderName = 'openai' | 'anthropic' | 'gemini' | 'groq';
 

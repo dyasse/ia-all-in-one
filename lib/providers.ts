@@ -17,19 +17,19 @@ function escapeHtml(value: string): string {
 }
 
 function qualityInstruction(qualityMode?: QualityMode): string {
-  if (qualityMode === 'fast') return 'Fast iteration mode with concise deliverables.';
-  if (qualityMode === 'beast') return 'Deep expert mode with production-ready detail and edge-cases.';
-  return 'Balanced mode with practical detail and speed.';
+  if (qualityMode === 'fast') return 'Fast mode with concise outputs.';
+  if (qualityMode === 'beast') return 'Production mode with architecture-level details and implementation notes.';
+  return 'Balanced mode with practical details.';
 }
 
 function buildInstruction(payload: GenerationPayload): string {
   return [
-    'You are an elite multi-modal AI builder.',
+    'You are UltraGen AI Brain Orchestrator.',
     qualityInstruction(payload.qualityMode),
     `Language: ${payload.language}`,
-    `Requested outputs: ${payload.outputTypes.join(', ')}`,
-    `User prompt: ${payload.prompt}`,
-    'Return concise implementation summary and key deliverables.'
+    `Requested modules: ${payload.outputTypes.join(', ')}`,
+    `User brief: ${payload.prompt}`,
+    'Return a concise execution summary and specific deliverables.'
   ].join('\n');
 }
 
@@ -38,28 +38,28 @@ function buildPreviewHtml(payload: GenerationPayload, provider: ProviderName): s
   const tags = payload.outputTypes
     .map(
       (type) =>
-        `<span style="padding:4px 8px;border-radius:999px;background:#132a22;border:1px solid #1d6b50">${escapeHtml(type)}</span>`
+        `<span style="padding:4px 8px;border-radius:999px;background:#18232f;border:1px solid #334155">/${escapeHtml(type)}</span>`
     )
     .join(' ');
-  const blocks = payload.outputTypes
+
+  const cards = payload.outputTypes
     .map((type) => {
       const blueprint = getOutputBlueprint(type);
-      return `<article style="padding:12px;border:1px solid #1f2937;border-radius:12px;background:#0b0f0e">
-        <h3 style="margin:0 0 8px 0;color:#a7f3d0;font-size:14px">${escapeHtml(blueprint.title)}</h3>
-        <p style="margin:0;color:#d1fae5;font-size:13px">${escapeHtml(blueprint.previewHint)}</p>
+      return `<article style="padding:12px;border:1px solid #1f2937;border-radius:12px;background:#050911">
+        <h3 style="margin:0 0 8px;color:#67e8f9;font-size:14px">${escapeHtml(blueprint.title)}</h3>
+        <p style="margin:0;color:#cbd5e1;font-size:13px">${escapeHtml(blueprint.previewHint)}</p>
       </article>`;
     })
     .join('');
 
   return `<!doctype html>
 <html>
-  <body style="margin:0;background:#050505;color:#d1fae5;font-family:Inter,system-ui;padding:24px">
-    <h2 style="margin-top:0">GenX AI — Delivery Preview</h2>
+  <body style="margin:0;background:#020617;color:#e2e8f0;font-family:Inter,system-ui;padding:20px">
+    <h2 style="margin-top:0">UltraGen AI Preview</h2>
     <p><strong>Provider:</strong> ${provider}</p>
     <p><strong>Prompt:</strong> ${safePrompt}</p>
     <div style="display:flex;flex-wrap:wrap;gap:8px">${tags}</div>
-    <section style="margin-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">${blocks}</section>
-    <p style="margin-top:16px;color:#a7f3d0">Preview generated and ready for export / GitHub sync.</p>
+    <section style="margin-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">${cards}</section>
   </body>
 </html>`;
 }
@@ -72,96 +72,66 @@ type OutputBlueprint = {
 };
 
 function getOutputBlueprint(output: OutputType): OutputBlueprint {
-  if (output === 'website') {
+  if (output === 'web') {
     return {
-      title: 'Website Experience',
-      previewHint: 'Responsive landing structure with hero, features and CTA blocks.',
-      deliverables: ['Next.js pages scaffold', 'Reusable UI section components', 'SEO metadata + sitemap'],
-      codeSnippet: `// website
-export const websitePages = ['/', '/pricing', '/contact'];`
+      title: 'Web Builder',
+      previewHint: 'React + Tailwind pages with responsive components and SEO wiring.',
+      deliverables: ['Next.js app/web scaffold', 'UI sections + shared design tokens', 'Metadata, sitemap, robots'],
+      codeSnippet: `// /web
+export const webRoutes = ['/', '/pricing', '/dashboard'];`
     };
   }
 
-  if (output === 'mobile-app') {
+  if (output === 'mobile') {
     return {
-      title: 'Mobile App',
-      previewHint: 'Onboarding, authentication and dashboard screen architecture.',
-      deliverables: ['Mobile screen wireframes', 'Navigation map', 'State/store structure'],
-      codeSnippet: `// mobile-app
-export const appFlow = ['Onboarding', 'SignIn', 'Home', 'Profile'];`
+      title: 'Mobile Builder',
+      previewHint: 'React Native/Flutter screen map with navigation and app state strategy.',
+      deliverables: ['Screen flow map', 'Navigation + state structure', 'Android/iOS config checklist'],
+      codeSnippet: `// /mobile
+export const mobileFlow = ['Onboarding', 'Auth', 'Home', 'Settings'];`
     };
   }
 
   if (output === 'image') {
     return {
-      title: 'Image Assets',
-      previewHint: 'Campaign-ready visual directions with prompt pack.',
-      deliverables: ['Image generation prompts', 'Art direction styles', 'Asset naming convention'],
-      codeSnippet: `// image
-export const imageStyles = ['photoreal', 'isometric', 'brand-minimal'];`
-    };
-  }
-
-  if (output === 'video') {
-    return {
-      title: 'Video Storyboard',
-      previewHint: 'Short-form storyboard with scene timing and narration beats.',
-      deliverables: ['Storyboard scenes', 'Shot list + timing', 'Voice-over script draft'],
-      codeSnippet: `// video
-export const videoTimeline = [{ scene: 1, sec: 0 }, { scene: 2, sec: 8 }];`
-    };
-  }
-
-  if (output === 'backend-api') {
-    return {
-      title: 'Backend API',
-      previewHint: 'REST endpoints, auth plan, and deployment-ready service layers.',
-      deliverables: ['API route contracts', 'DB schema starter', 'Auth + role matrix'],
-      codeSnippet: `// backend-api
-export const apiRoutes = ['/auth/login', '/projects', '/projects/:id'];`
-    };
-  }
-
-  if (output === 'automation') {
-    return {
-      title: 'Automation Flow',
-      previewHint: 'Trigger-action pipeline with retries, alerts, and observability notes.',
-      deliverables: ['Workflow nodes map', 'Failure retry strategy', 'Monitoring hooks'],
-      codeSnippet: `// automation
-export const automationTriggers = ['user_signup', 'payment_success'];`
+      title: 'Image Lab',
+      previewHint: 'Flux / DALL·E prompt pack with art direction variants.',
+      deliverables: ['Prompt library by style', 'Brand visual guide', 'Asset naming and versioning'],
+      codeSnippet: `// /image
+export const imageModels = ['flux.1', 'dall-e'];`
     };
   }
 
   return {
-    title: 'Marketing Copy',
-    previewHint: 'Multi-channel launch copy for email, social and landing CTAs.',
-    deliverables: ['Brand tone guide', 'Email sequence draft', 'Ad copy variants'],
-    codeSnippet: `// marketing-copy
-export const copyAngles = ['pain-point', 'social-proof', 'offer-driven'];`
+    title: 'Video Studio',
+    previewHint: 'Luma / Runway storyboard with motion and voice-over beats.',
+    deliverables: ['Scene timeline', 'Prompt + camera movement sheet', 'Audio/script draft'],
+    codeSnippet: `// /video
+export const videoModels = ['luma', 'runway'];`
   };
 }
 
 function buildCodeSample(payload: GenerationPayload, provider: ProviderName): string {
   const snippets = payload.outputTypes.map((output) => getOutputBlueprint(output).codeSnippet).join('\n\n');
 
-  return `// Generated by ${provider}
-// Quality mode: ${payload.qualityMode ?? 'balanced'}
-export const generationPlan = {
+  return `// Generated by UltraGen AI (${provider})
+export const ultraGenPlan = {
   prompt: ${JSON.stringify(payload.prompt)},
-  outputs: ${JSON.stringify(payload.outputTypes)}
+  modules: ${JSON.stringify(payload.outputTypes)},
+  quality: ${JSON.stringify(payload.qualityMode ?? 'balanced')}
 };
 
 ${snippets}
 
-export const handoffChecklist = [
-  'Validate requirements with stakeholder',
-  'Implement and iterate output modules',
-  'Run QA and prepare deployment package'
+export const deployChecklist = [
+  'Validate outputs and secrets in /api/ai/generate',
+  'Sync repository through GitHub API',
+  'Trigger Vercel deployment and monitor build logs'
 ];`;
 }
 
 function buildFallbackSummary(provider: ProviderName, payload: GenerationPayload): string {
-  return `[Demo mode] ${provider} API key missing. I prepared a full delivery plan for ${payload.outputTypes.join(', ')} based on your prompt.`;
+  return `[Demo mode] ${provider} key missing. Prepared architecture and delivery plan for modules: ${payload.outputTypes.join(', ')}.`;
 }
 
 function buildDeliverables(payload: GenerationPayload): string[] {
@@ -186,21 +156,7 @@ function buildMockResult(provider: ProviderName, payload: GenerationPayload): Ge
 function normalizeOpenAiSummary(data: unknown): string | undefined {
   if (!data || typeof data !== 'object') return undefined;
   const parsed = data as Record<string, unknown>;
-  if (typeof parsed.output_text === 'string' && parsed.output_text.trim().length > 0) {
-    return parsed.output_text;
-  }
-  if (Array.isArray(parsed.output)) {
-    for (const node of parsed.output) {
-      if (!node || typeof node !== 'object') continue;
-      const content = (node as Record<string, unknown>).content;
-      if (!Array.isArray(content)) continue;
-      for (const item of content) {
-        if (!item || typeof item !== 'object') continue;
-        const text = (item as Record<string, unknown>).text;
-        if (typeof text === 'string' && text.trim().length > 0) return text;
-      }
-    }
-  }
+  if (typeof parsed.output_text === 'string' && parsed.output_text.trim().length > 0) return parsed.output_text;
   return undefined;
 }
 
@@ -208,11 +164,10 @@ function normalizeAnthropicSummary(data: unknown): string | undefined {
   if (!data || typeof data !== 'object') return undefined;
   const parsed = data as Record<string, unknown>;
   if (!Array.isArray(parsed.content)) return undefined;
-
   const textNode = parsed.content.find((item) => {
     if (!item || typeof item !== 'object') return false;
-    const candidate = item as Record<string, unknown>;
-    return candidate.type === 'text' && typeof candidate.text === 'string';
+    const node = item as Record<string, unknown>;
+    return node.type === 'text' && typeof node.text === 'string';
   }) as Record<string, unknown> | undefined;
 
   return typeof textNode?.text === 'string' ? textNode.text : undefined;
@@ -224,10 +179,7 @@ async function callOpenAi(payload: GenerationPayload): Promise<GenerationResult>
 
   const response = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json'
-    },
+    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model: process.env.OPENAI_MODEL ?? 'gpt-4.1-mini',
       input: buildInstruction(payload),
@@ -235,15 +187,9 @@ async function callOpenAi(payload: GenerationPayload): Promise<GenerationResult>
     })
   });
 
-  if (!response.ok) {
-    throw new Error(`OpenAI request failed (${response.status}): ${await response.text()}`);
-  }
-
+  if (!response.ok) throw new Error(`OpenAI request failed (${response.status}): ${await response.text()}`);
   const summary = normalizeOpenAiSummary(await response.json()) ?? 'OpenAI generation completed.';
-  return {
-    ...buildMockResult('openai', payload),
-    summary
-  };
+  return { ...buildMockResult('openai', payload), summary };
 }
 
 async function callAnthropic(payload: GenerationPayload): Promise<GenerationResult> {
@@ -264,15 +210,9 @@ async function callAnthropic(payload: GenerationPayload): Promise<GenerationResu
     })
   });
 
-  if (!response.ok) {
-    throw new Error(`Anthropic request failed (${response.status}): ${await response.text()}`);
-  }
-
+  if (!response.ok) throw new Error(`Anthropic request failed (${response.status}): ${await response.text()}`);
   const summary = normalizeAnthropicSummary(await response.json()) ?? 'Anthropic generation completed.';
-  return {
-    ...buildMockResult('anthropic', payload),
-    summary
-  };
+  return { ...buildMockResult('anthropic', payload), summary };
 }
 
 async function callGemini(payload: GenerationPayload): Promise<GenerationResult> {
@@ -284,27 +224,11 @@ async function callGemini(payload: GenerationPayload): Promise<GenerationResult>
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: buildInstruction(payload) }] }]
-    })
+    body: JSON.stringify({ contents: [{ parts: [{ text: buildInstruction(payload) }] }] })
   });
 
-  if (!response.ok) {
-    throw new Error(`Gemini request failed (${response.status}): ${await response.text()}`);
-  }
-
-  const data = (await response.json()) as Record<string, unknown>;
-  const summary =
-    ((data.candidates as Array<Record<string, unknown>> | undefined)?.[0]?.content as Record<string, unknown> | undefined)?.parts &&
-    Array.isArray(((data.candidates as Array<Record<string, unknown>> | undefined)?.[0]?.content as Record<string, unknown> | undefined)?.parts)
-      ? ((((data.candidates as Array<Record<string, unknown>> | undefined)?.[0]?.content as Record<string, unknown> | undefined)
-          .parts as Array<Record<string, unknown>>)[0]?.text as string | undefined)
-      : undefined;
-
-  return {
-    ...buildMockResult('gemini', payload),
-    summary: summary && summary.trim().length > 0 ? summary : 'Gemini generation completed.'
-  };
+  if (!response.ok) throw new Error(`Gemini request failed (${response.status}): ${await response.text()}`);
+  return { ...buildMockResult('gemini', payload), summary: 'Gemini generation completed.' };
 }
 
 async function callGroq(payload: GenerationPayload): Promise<GenerationResult> {
@@ -313,10 +237,7 @@ async function callGroq(payload: GenerationPayload): Promise<GenerationResult> {
 
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json'
-    },
+    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model: process.env.GROQ_MODEL ?? 'llama-3.3-70b-versatile',
       messages: [{ role: 'user', content: buildInstruction(payload) }],
@@ -324,19 +245,8 @@ async function callGroq(payload: GenerationPayload): Promise<GenerationResult> {
     })
   });
 
-  if (!response.ok) {
-    throw new Error(`Groq request failed (${response.status}): ${await response.text()}`);
-  }
-
-  const data = (await response.json()) as Record<string, unknown>;
-  const summary =
-    ((data.choices as Array<Record<string, unknown>> | undefined)?.[0]?.message as Record<string, unknown> | undefined)
-      ?.content as string | undefined;
-
-  return {
-    ...buildMockResult('groq', payload),
-    summary: summary && summary.trim().length > 0 ? summary : 'Groq generation completed.'
-  };
+  if (!response.ok) throw new Error(`Groq request failed (${response.status}): ${await response.text()}`);
+  return { ...buildMockResult('groq', payload), summary: 'Groq generation completed.' };
 }
 
 function resolveProvider(provider?: string): ProviderName {
@@ -345,14 +255,9 @@ function resolveProvider(provider?: string): ProviderName {
 }
 
 function pickAutoProvider(payload: GenerationPayload): ProviderName {
-  if (payload.outputTypes.includes('video') || payload.qualityMode === 'beast') {
-    return 'anthropic';
-  }
-
-  if (payload.outputTypes.includes('automation')) {
-    return 'groq';
-  }
-
+  if (payload.outputTypes.includes('web')) return 'anthropic';
+  if (payload.outputTypes.includes('mobile')) return 'openai';
+  if (payload.outputTypes.includes('video')) return 'gemini';
   return 'openai';
 }
 
@@ -360,7 +265,6 @@ export function getProviderClient(provider?: string): ProviderClient {
   return {
     async generate(payload) {
       const providerToUse = provider === 'auto' || !provider ? pickAutoProvider(payload) : resolveProvider(provider);
-
       if (providerToUse === 'anthropic') return callAnthropic(payload);
       if (providerToUse === 'gemini') return callGemini(payload);
       if (providerToUse === 'groq') return callGroq(payload);
