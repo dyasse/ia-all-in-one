@@ -1,7 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
 import {
   Sidebar,
   StudioHeader,
@@ -11,6 +9,7 @@ import {
   PricingModal,
   ArchitectureGuide
 } from '@/components/dashboard';
+import { useState } from 'react';
 import type { GenerationResult } from '@/types/generation';
 
 export default function Page() {
@@ -20,19 +19,15 @@ export default function Page() {
     <main className="genx-shell">
       <Sidebar />
       <section className="genx-main">
-        <StudioHeader onResult={setResult} />
+        <div className="top-zone">
+          <PricingModal />
+          <StudioHeader onResult={setResult} />
+        </div>
         <FeatureBar />
         <Workspace result={result} />
         <AssetGallery result={result} />
         <ArchitectureGuide />
       </section>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.35, delay: 0.15 }}
-      >
-        <PricingModal />
-      </motion.div>
     </main>
   );
 }
