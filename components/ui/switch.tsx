@@ -1,4 +1,6 @@
-import { Dispatch, SetStateAction } from 'react';
+'use client';
+
+import type { Dispatch, SetStateAction } from 'react';
 
 export function SwitchPill({
   checked,

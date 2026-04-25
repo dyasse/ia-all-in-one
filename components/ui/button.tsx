@@ -1,4 +1,6 @@
-import { ButtonHTMLAttributes } from 'react';
+'use client';
+
+import type { ButtonHTMLAttributes } from 'react';
 
 type ButtonVariant = 'default' | 'ghost' | 'pro' | 'outline';
 
