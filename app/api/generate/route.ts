@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getProviderClient } from '@/lib/providers';
-import type { GenerationPayload } from '@/types/generation';
+import type { GenerationPayload, OutputType } from '@/types/generation';
+
+const VALID_OUTPUT_TYPES: ReadonlyArray<OutputType> = ['website', 'mobile-app', 'image', 'video'];
 
 function isValidPayload(payload: Partial<GenerationPayload>): payload is GenerationPayload {
   return (
@@ -8,7 +10,8 @@ function isValidPayload(payload: Partial<GenerationPayload>): payload is Generat
     payload.prompt.trim().length > 0 &&
     (payload.language === 'en' || payload.language === 'ar' || payload.language === 'fr') &&
     Array.isArray(payload.outputTypes) &&
-    payload.outputTypes.length > 0
+    payload.outputTypes.length > 0 &&
+    payload.outputTypes.every((type) => VALID_OUTPUT_TYPES.includes(type as OutputType))
   );
 }
 
@@ -23,7 +26,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const client = getProviderClient(process.env.AI_PROVIDER ?? 'openai');
+    const client = getProviderClient(process.env.AI_PROVIDER);
     const result = await client.generate(payload);
 
     return NextResponse.json({ ok: true, result });
