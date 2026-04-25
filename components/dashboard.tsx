@@ -20,7 +20,11 @@ import {
   CircleDollarSign,
   BrainCircuit,
   Workflow,
-  FileText
+  FileText,
+  CornerDownLeft,
+  CheckCircle2,
+  AlertTriangle,
+  Sparkles
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -151,7 +155,15 @@ export function StudioHeader({ onResult }: StudioHeaderProps) {
           <p>Generate any digital output: web, app, media, automation, backend, and copywriting.</p>
         </div>
         <div className={`status status-${status}`}>
-          <LoaderCircle className="spin" size={16} />
+          {status === 'running' ? (
+            <LoaderCircle className="spin" size={16} />
+          ) : status === 'success' ? (
+            <CheckCircle2 size={16} />
+          ) : status === 'error' ? (
+            <AlertTriangle size={16} />
+          ) : (
+            <Sparkles size={16} />
+          )}
           {status === 'running'
             ? 'Generation in progress...'
             : status === 'success'
@@ -167,7 +179,16 @@ export function StudioHeader({ onResult }: StudioHeaderProps) {
           placeholder="Describe your product... صف تطبيقك... Décris ton app..."
           value={prompt}
           onChange={(event) => setPrompt(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+              event.preventDefault();
+              void handleGenerate();
+            }
+          }}
         />
+        <Button variant="outline" onClick={() => void handleGenerate()} disabled={status === 'running'}>
+          <CornerDownLeft size={14} /> Enter
+        </Button>
       </div>
       <div className="settings-grid">
         <div className="language-row">
@@ -231,7 +252,7 @@ export function StudioHeader({ onResult }: StudioHeaderProps) {
         />
       </div>
       <div className="generate-row">
-        <Button onClick={handleGenerate} disabled={status === 'running'}>
+        <Button onClick={() => void handleGenerate()} disabled={status === 'running'}>
           {status === 'running' ? <LoaderCircle className="spin" size={14} /> : <Rocket size={14} />}
           {status === 'running' ? 'Generating...' : 'Generate now'}
         </Button>
