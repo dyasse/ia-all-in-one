@@ -10,6 +10,14 @@ type ProviderClient = {
   generate: (payload: GenerationPayload) => Promise<GenerationResult>;
 };
 
+function buildMockResult(providerLabel: string, payload: GenerationPayload): GenerationResult {
+  return {
+    id: crypto.randomUUID(),
+    status: 'complete',
+    summary: `[Demo mode] ${providerLabel} key is missing. Generated a local summary for ${payload.outputTypes.join(', ')} from your prompt.`
+  };
+}
+
 function buildInstruction(payload: GenerationPayload) {
   return `You are a generation coordinator. Summarize the requested build in 2 concise sentences.\nLanguage: ${payload.language}\nOutput types: ${payload.outputTypes.join(', ')}\nPrompt: ${payload.prompt}`;
 }
@@ -19,7 +27,7 @@ function getOpenAiClient(): ProviderClient {
     async generate(payload) {
       const apiKey = process.env.OPENAI_API_KEY;
       if (!apiKey) {
-        throw new Error('OPENAI_API_KEY is not configured');
+        return buildMockResult('OpenAI', payload);
       }
 
       const response = await fetch('https://api.openai.com/v1/responses', {
@@ -59,7 +67,7 @@ function getAnthropicClient(): ProviderClient {
     async generate(payload) {
       const apiKey = process.env.ANTHROPIC_API_KEY;
       if (!apiKey) {
-        throw new Error('ANTHROPIC_API_KEY is not configured');
+        return buildMockResult('Anthropic', payload);
       }
 
       const response = await fetch('https://api.anthropic.com/v1/messages', {
