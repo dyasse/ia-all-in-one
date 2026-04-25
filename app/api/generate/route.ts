@@ -2,15 +2,7 @@ import { NextResponse } from 'next/server';
 import { getProviderClient } from '@/lib/providers';
 import type { GenerationPayload, OutputType, ProviderName, QualityMode } from '@/types/generation';
 
-const VALID_OUTPUT_TYPES: ReadonlyArray<OutputType> = [
-  'website',
-  'mobile-app',
-  'image',
-  'video',
-  'backend-api',
-  'automation',
-  'marketing-copy'
-];
+const VALID_OUTPUT_TYPES: ReadonlyArray<OutputType> = ['web', 'mobile', 'image', 'video'];
 
 const VALID_PROVIDERS: Array<ProviderName | 'auto'> = ['auto', 'openai', 'anthropic', 'gemini', 'groq'];
 const VALID_QUALITY: QualityMode[] = ['fast', 'balanced', 'beast'];
@@ -19,7 +11,7 @@ function isValidPayload(payload: Partial<GenerationPayload>): payload is Generat
   return (
     typeof payload.prompt === 'string' &&
     payload.prompt.trim().length > 0 &&
-    (payload.language === 'en' || payload.language === 'ar' || payload.language === 'fr') &&
+    (payload.language === 'darija' || payload.language === 'ar' || payload.language === 'en') &&
     Array.isArray(payload.outputTypes) &&
     payload.outputTypes.length > 0 &&
     payload.outputTypes.every((type) => VALID_OUTPUT_TYPES.includes(type as OutputType)) &&
@@ -36,8 +28,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           ok: false,
-          error:
-            'Invalid payload. Expected prompt, language, outputTypes, and optional provider/qualityMode.'
+          error: 'Invalid payload. Expected prompt, language, outputTypes, and optional provider/qualityMode.'
         },
         { status: 400 }
       );

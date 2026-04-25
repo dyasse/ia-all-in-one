@@ -1,56 +1,26 @@
-# GenX AI — Multi-Modal Generation Dashboard
+# UltraGen AI — Production-Ready AI Generation Platform
 
-Ultra-modern dark-mode SaaS dashboard for generating websites, mobile apps, media, backend APIs, automation flows, and marketing copy.
+Cyberpunk-minimalist dashboard for orchestrating AI generation across:
+- `/web` (React + Tailwind)
+- `/mobile` (React Native / Flutter)
+- `/image` (Flux / DALL·E)
+- `/video` (Luma / Runway)
 
-## Stack
-- Next.js (React)
-- Framer Motion
-- Lucide Icons
-- Shadcn-inspired UI components
+## Core stack
+- Next.js 14+ App Router + TypeScript
+- Framer Motion + Lucide + shadcn-inspired UI primitives
+- Central Brain orchestrator (provider routing + module dispatch)
+- Secure API proxy via `/api/generate`
 
-## AI Modules (multi-provider)
-- `openai` (Responses API)
-- `anthropic` (Messages API)
-- `gemini` (Google Generative Language API)
-- `groq` (OpenAI-compatible chat endpoint)
-- `auto` routing mode based on requested outputs
-
-If a provider API key is missing, the app runs in demo mode and still returns complete mock deliverables.
+## Platform capabilities
+- Multi-step multilingual prompt intake (Darija / Arabic / English)
+- Left editor + right real-time web/mobile preview workspace
+- GitHub sync + one-click Vercel deploy (UI actions)
+- Stripe tiering and Clerk-auth ready UI states
+- Credit-based productization and enterprise architecture guide
 
 ## Run locally
 ```bash
 npm install
 npm run dev
 ```
-
-## Environment variables
-```bash
-AI_PROVIDER=auto
-OPENAI_API_KEY=
-ANTHROPIC_API_KEY=
-GEMINI_API_KEY=
-GROQ_API_KEY=
-```
-
-Optional model overrides:
-- `OPENAI_MODEL`
-- `ANTHROPIC_MODEL`
-- `GEMINI_MODEL`
-- `GROQ_MODEL`
-
-## Project structure
-- `/components`: UI building blocks and dashboard modules
-- `/lib`: provider clients and IA model routing
-- `/app/api`: backend generation endpoints
-- `/types`: typed contracts for language/output/provider modes
-
-## Vercel + GitHub deployment (L-Khochibat)
-1. In v0, click **Add to Codebase** or **Deploy** and connect GitHub.
-2. Clone locally:
-   ```bash
-   git clone [repo-link]
-   cd [project-name]
-   npm install
-   ```
-3. Add API keys to Vercel Environment Variables.
-4. Deploy with Vercel.
