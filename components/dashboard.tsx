@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { generateWithApi } from '@/lib/generation-client';
 import type { GenerationResult } from '@/types/generation';
 
 type StreamStatus = 'idle' | 'streaming' | 'done' | 'error';
@@ -131,85 +132,89 @@ export function StudioHeader({ onResult, onPrompt, onStatus, onPlan, onLogs, onT
     onPlan(steps);
     onLogs(logs);
 
-    await sleep(700);
-    logs.push('[planner] Prompt analyzed and intent graph generated');
-    onLogs([...logs]);
+    try {
+      await sleep(700);
+      logs.push('[planner] Prompt analyzed and intent graph generated');
+      onLogs([...logs]);
 
-    steps[0].status = 'done';
-    steps[1].status = 'running';
-    onPlan([...steps]);
-    await sleep(850);
+      steps[0].status = 'done';
+      steps[1].status = 'running';
+      onPlan([...steps]);
+      await sleep(450);
 
-    const generatedTree: VfsNode[] = [
-      {
-        name: 'src',
-        type: 'folder',
-        children: [
-          {
-            name: 'app/page.tsx',
-            type: 'file',
-            content:
-              "export default function Home(){return <main className='bg-black text-indigo-300'>X-Builder App</main>}"
-          },
-          { name: 'components/chat-sidebar.tsx', type: 'file', content: 'export function ChatSidebar(){return null;}' },
-          { name: 'components/terminal.tsx', type: 'file', content: 'export function Terminal(){return null;}' }
-        ]
-      },
-      { name: 'api', type: 'folder', children: [{ name: 'generate/route.ts', type: 'file', content: '// stream plan chunks' }] },
-      { name: 'mobile', type: 'folder', children: [{ name: 'App.tsx', type: 'file', content: 'export default function App(){return null;}' }] },
-      {
-        name: 'media',
-        type: 'folder',
-        children: [
-          { name: 'image-prompts.md', type: 'file', content: '# Flux / DALL·E prompts' },
-          { name: 'video-storyboard.md', type: 'file', content: '# Luma scenes' }
-        ]
-      }
-    ];
+      const result = await generateWithApi(prompt, {
+        language: 'darija',
+        provider: 'auto',
+        qualityMode: 'balanced',
+        outputTypes: ['web', 'mobile', 'image', 'video']
+      });
 
-    onTree(generatedTree);
-    logs.push('[vfs] Virtual file system generated (10 files)');
-    onLogs([...logs]);
+      const generatedTree: VfsNode[] = [
+        {
+          name: 'src',
+          type: 'folder',
+          children: [
+            {
+              name: 'app/page.tsx',
+              type: 'file',
+              content:
+                "export default function Home(){return <main className='bg-black text-indigo-300'>X-Builder App</main>}"
+            },
+            { name: 'components/chat-sidebar.tsx', type: 'file', content: 'export function ChatSidebar(){return null;}' },
+            { name: 'components/terminal.tsx', type: 'file', content: 'export function Terminal(){return null;}' }
+          ]
+        },
+        {
+          name: 'api',
+          type: 'folder',
+          children: [{ name: 'generate/route.ts', type: 'file', content: '// connected to /api/generate' }]
+        },
+        { name: 'mobile', type: 'folder', children: [{ name: 'App.tsx', type: 'file', content: 'export default function App(){return null;}' }] },
+        {
+          name: 'media',
+          type: 'folder',
+          children: [
+            { name: 'image-prompts.md', type: 'file', content: '# Flux / DALL·E prompts' },
+            { name: 'video-storyboard.md', type: 'file', content: '# Luma scenes' }
+          ]
+        }
+      ];
 
-    steps[1].status = 'done';
-    steps[2].status = 'running';
-    onPlan([...steps]);
-    await sleep(800);
+      onTree(generatedTree);
+      logs.push('[vfs] Virtual file system generated (10 files)');
+      onLogs([...logs]);
 
-    logs.push('[bridge] Model routing completed: anthropic + replicate/openai + luma');
-    onLogs([...logs]);
+      steps[1].status = 'done';
+      steps[2].status = 'running';
+      onPlan([...steps]);
+      await sleep(500);
 
-    steps[2].status = 'done';
-    steps[3].status = 'running';
-    onPlan([...steps]);
-    await sleep(800);
+      logs.push(`[bridge] Model routing completed by API provider: ${result.providerUsed}`);
+      onLogs([...logs]);
 
-    logs.push('[deploy] Deployment actions configured for GitHub and Vercel');
-    onLogs([...logs]);
+      steps[2].status = 'done';
+      steps[3].status = 'running';
+      onPlan([...steps]);
+      await sleep(350);
 
-    steps[3].status = 'done';
-    onPlan([...steps]);
+      logs.push('[deploy] Deployment actions configured for GitHub and Vercel');
+      onLogs([...logs]);
 
-    const result: GenerationResult = {
-      id: crypto.randomUUID(),
-      status: 'complete',
-      summary: 'Initial architecture generated with orchestrator plan, VFS, model-bridge hints, and deploy hooks.',
-      providerUsed: 'anthropic',
-      deliverables: [
-        'Full-stack web scaffold + mobile starter',
-        'Image prompt pack (Flux / DALL·E)',
-        'Video storyboard plan (Luma Dream Machine)',
-        'GitHub + Vercel deployment workflow'
-      ],
-      previewHtml: `<!doctype html><html><body style="margin:0;background:#050505;color:#e4e4e7;font-family:Inter;padding:24px"><h1 style="color:#818cf8">X-Builder AI</h1><p>Prompt accepted and architecture staged.</p><ul><li>Orchestrator Plan ✅</li><li>VFS Tree ✅</li><li>Bridge Models ✅</li><li>Deploy Hooks ✅</li></ul></body></html>`,
-      codeSample: defaultCode
-    };
+      steps[3].status = 'done';
+      onPlan([...steps]);
 
-    onResult(result);
-    setStatus('done');
-    onStatus('done');
-    logs.push('[done] Streaming finished successfully');
-    onLogs([...logs]);
+      onResult(result);
+      setStatus('done');
+      onStatus('done');
+      logs.push('[done] Streaming finished successfully');
+      onLogs([...logs]);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Generation failed';
+      logs.push(`[error] ${message}`);
+      onLogs([...logs]);
+      setStatus('error');
+      onStatus('error');
+    }
   }
 
   return (
