@@ -22,6 +22,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { SwitchPill } from '@/components/ui/switch';
+import type { OutputType } from '@/types/generation';
 
 const nav = [
   { icon: FolderKanban, label: 'Projects' },
@@ -55,6 +56,62 @@ export function StudioHeader() {
   const [mobileApp, setMobileApp] = useState(true);
   const [image, setImage] = useState(false);
   const [video, setVideo] = useState(false);
+  const [language, setLanguage] = useState<'en' | 'ar' | 'fr'>('en');
+  const [prompt, setPrompt] = useState(
+    'Create a fintech landing page + Android app onboarding + hero image'
+  );
+  const [status, setStatus] = useState<'idle' | 'running' | 'success' | 'error'>('idle');
+  const [summary, setSummary] = useState('Your generation output will appear in the workspace.');
+  const [resultId, setResultId] = useState<string | null>(null);
+
+  const outputTypes = useMemo<OutputType[]>(() => {
+    return [
+      website ? 'website' : null,
+      mobileApp ? 'mobile-app' : null,
+      image ? 'image' : null,
+      video ? 'video' : null
+    ].filter((value): value is OutputType => value !== null);
+  }, [website, mobileApp, image, video]);
+
+  async function handleGenerate() {
+    if (outputTypes.length === 0 || prompt.trim().length === 0) {
+      setStatus('error');
+      setSummary('Please provide a prompt and select at least one output type.');
+      return;
+    }
+
+    setStatus('running');
+    setSummary('Generation in progress...');
+
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt,
+          language,
+          outputTypes
+        })
+      });
+
+      const data = (await response.json()) as {
+        ok: boolean;
+        result?: { summary: string; id: string };
+        error?: string;
+      };
+
+      if (!response.ok || !data.ok || !data.result) {
+        throw new Error(data.error ?? 'Generation failed. Try again.');
+      }
+
+      setStatus('success');
+      setSummary(data.result.summary);
+      setResultId(data.result.id);
+    } catch (error) {
+      setStatus('error');
+      setSummary(error instanceof Error ? error.message : 'Unexpected error while generating.');
+    }
+  }
 
   return (
     <Card>
@@ -63,23 +120,60 @@ export function StudioHeader() {
           <h2>The Studio</h2>
           <p>Magic Prompt supports English, العربية, and Français.</p>
         </div>
-        <div className="status">
+        <div className={`status status-${status}`}>
           <LoaderCircle className="spin" size={16} />
-          Generation in progress...
+          {status === 'running'
+            ? 'Generation in progress...'
+            : status === 'success'
+              ? 'Generation complete'
+              : status === 'error'
+                ? 'Generation failed'
+                : 'Ready to generate'}
         </div>
       </div>
       <div className="prompt-shell">
         <Languages size={16} />
         <input
           placeholder="Describe your product... صف تطبيقك... Décris ton app..."
-          defaultValue="Create a fintech landing page + Android app onboarding + hero image"
+          value={prompt}
+          onChange={(event) => setPrompt(event.target.value)}
         />
+      </div>
+      <div className="language-row">
+        <small>Language</small>
+        <div className="lang-switches">
+          {[
+            { code: 'en', label: 'English' },
+            { code: 'ar', label: 'العربية' },
+            { code: 'fr', label: 'Français' }
+          ].map((lang) => (
+            <button
+              key={lang.code}
+              className={`lang-pill ${language === lang.code ? 'lang-pill-active' : ''}`}
+              onClick={() => setLanguage(lang.code as 'en' | 'ar' | 'fr')}
+            >
+              {lang.label}
+            </button>
+          ))}
+        </div>
       </div>
       <div className="toggles">
         <SwitchPill checked={website} onCheckedChange={setWebsite} label="Website" />
         <SwitchPill checked={mobileApp} onCheckedChange={setMobileApp} label="Mobile App" />
         <SwitchPill checked={image} onCheckedChange={setImage} label="Image" />
         <SwitchPill checked={video} onCheckedChange={setVideo} label="Video" />
+      </div>
+      <div className="generate-row">
+        <Button onClick={handleGenerate} disabled={status === 'running'}>
+          {status === 'running' ? <LoaderCircle className="spin" size={14} /> : <Rocket size={14} />}
+          {status === 'running' ? 'Generating...' : 'Generate now'}
+        </Button>
+        <small>Selected outputs: {outputTypes.length > 0 ? outputTypes.join(', ') : 'none'}</small>
+      </div>
+      <div className="summary-box">
+        <strong>Result summary</strong>
+        <p>{summary}</p>
+        {resultId && <small>Generation ID: {resultId}</small>}
       </div>
     </Card>
   );
