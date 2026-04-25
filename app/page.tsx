@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Sidebar,
@@ -10,16 +11,19 @@ import {
   PricingModal,
   ArchitectureGuide
 } from '@/components/dashboard';
+import type { GenerationResult } from '@/types/generation';
 
 export default function Page() {
+  const [result, setResult] = useState<GenerationResult | null>(null);
+
   return (
     <main className="genx-shell">
       <Sidebar />
       <section className="genx-main">
-        <StudioHeader />
+        <StudioHeader onResult={setResult} />
         <FeatureBar />
-        <Workspace />
-        <AssetGallery />
+        <Workspace result={result} />
+        <AssetGallery result={result} />
         <ArchitectureGuide />
       </section>
       <motion.div
