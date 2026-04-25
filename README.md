@@ -1,6 +1,6 @@
 # GenX AI — Multi-Modal Generation Dashboard
 
-Ultra-modern dark-mode SaaS dashboard for generating websites, mobile apps, images, and videos.
+Ultra-modern dark-mode SaaS dashboard for generating websites, mobile apps, media, backend APIs, automation flows, and marketing copy.
 
 ## Stack
 - Next.js (React)
@@ -8,17 +8,41 @@ Ultra-modern dark-mode SaaS dashboard for generating websites, mobile apps, imag
 - Lucide Icons
 - Shadcn-inspired UI components
 
+## AI Modules (multi-provider)
+- `openai` (Responses API)
+- `anthropic` (Messages API)
+- `gemini` (Google Generative Language API)
+- `groq` (OpenAI-compatible chat endpoint)
+- `auto` routing mode based on requested outputs
+
+If a provider API key is missing, the app runs in demo mode and still returns complete mock deliverables.
+
 ## Run locally
 ```bash
 npm install
 npm run dev
 ```
 
+## Environment variables
+```bash
+AI_PROVIDER=auto
+OPENAI_API_KEY=
+ANTHROPIC_API_KEY=
+GEMINI_API_KEY=
+GROQ_API_KEY=
+```
+
+Optional model overrides:
+- `OPENAI_MODEL`
+- `ANTHROPIC_MODEL`
+- `GEMINI_MODEL`
+- `GROQ_MODEL`
+
 ## Project structure
-- `/components`: UI building blocks (sidebar, studio prompt, workspace, pricing, gallery)
-- `/lib`: provider clients (OpenAI/Anthropic wiring point)
+- `/components`: UI building blocks and dashboard modules
+- `/lib`: provider clients and IA model routing
 - `/app/api`: backend generation endpoints
-- `/types`: typed contracts for language/output modes
+- `/types`: typed contracts for language/output/provider modes
 
 ## Vercel + GitHub deployment (L-Khochibat)
 1. In v0, click **Add to Codebase** or **Deploy** and connect GitHub.
@@ -28,6 +52,5 @@ npm run dev
    cd [project-name]
    npm install
    ```
-3. Add generation backend in `app/api/generate/route.ts`.
-4. Add OpenAI/Anthropic API keys to Vercel Environment Variables.
-5. Deploy with Vercel.
+3. Add API keys to Vercel Environment Variables.
+4. Deploy with Vercel.
