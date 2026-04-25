@@ -1,288 +1,236 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { useMemo, useState } from 'react';
 import {
-  BrainCircuit,
+  Bot,
   CheckCircle2,
   Cloud,
   CreditCard,
+  FileCode2,
+  FolderTree,
   Github,
-  Globe,
   Image as ImageIcon,
-  Languages,
   LoaderCircle,
-  Lock,
-  Rocket,
-  Smartphone,
-  UserCircle2,
-  Video,
-  Zap
+  Play,
+  Send,
+  Sparkles,
+  TerminalSquare,
+  Video
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { SwitchPill } from '@/components/ui/switch';
-import type { GenerationResult, OutputType, ProviderName, QualityMode } from '@/types/generation';
+import type { GenerationResult } from '@/types/generation';
 
-const modules = [
-  { key: 'web', icon: Globe, label: '/web · React + Tailwind' },
-  { key: 'mobile', icon: Smartphone, label: '/mobile · React Native / Flutter' },
-  { key: 'image', icon: ImageIcon, label: '/image · Flux / DALL·E' },
-  { key: 'video', icon: Video, label: '/video · Luma / Runway' }
-] as const;
+type StreamStatus = 'idle' | 'streaming' | 'done' | 'error';
 
-const providerOptions: Array<{ code: ProviderName | 'auto'; label: string }> = [
-  { code: 'auto', label: 'Brain Auto' },
-  { code: 'anthropic', label: 'Claude 3.5 Sonnet' },
-  { code: 'openai', label: 'GPT-4o / OpenAI' },
-  { code: 'gemini', label: 'Gemini' },
-  { code: 'groq', label: 'Groq' }
+type PlanStep = {
+  id: string;
+  title: string;
+  status: 'pending' | 'running' | 'done';
+};
+
+type VfsNode = {
+  name: string;
+  type: 'file' | 'folder';
+  content?: string;
+  children?: VfsNode[];
+};
+
+type ChatMessage = {
+  id: string;
+  role: 'user' | 'assistant';
+  text: string;
+};
+
+const starterTree: VfsNode[] = [
+  {
+    name: 'src',
+    type: 'folder',
+    children: [
+      { name: 'app/page.tsx', type: 'file', content: '// Generate to view files...' },
+      { name: 'components/editor.tsx', type: 'file', content: '// Monaco editor mount...' }
+    ]
+  },
+  { name: 'api', type: 'folder', children: [{ name: 'orchestrator.ts', type: 'file', content: '// plan router' }] },
+  { name: 'mobile', type: 'folder', children: [{ name: 'App.tsx', type: 'file', content: '// React Native app entry' }] },
+  { name: 'media', type: 'folder', children: [{ name: 'storyboard.json', type: 'file', content: '{"scenes":[]}' }] }
 ];
 
-const qualityOptions: Array<{ code: QualityMode; label: string }> = [
-  { code: 'fast', label: 'Fast' },
-  { code: 'balanced', label: 'Balanced' },
-  { code: 'beast', label: 'Production' }
-];
+const defaultCode = `// X-Builder AI :: Orchestrator
+export async function orchestratePrompt(prompt: string) {
+  return {
+    plan: ['Analyze', 'Generate VFS', 'Build Preview', 'Prepare Deploy'],
+    prompt
+  };
+}`;
+
+const previewStub = `<!doctype html><html><body style="background:#050505;color:#d4d4d8;font-family:Inter;padding:24px"><h2>X-Builder AI Preview</h2><p>Run Prompt to Code to stream plan + files.</p></body></html>`;
+
+function flattenFiles(nodes: VfsNode[]): VfsNode[] {
+  return nodes.flatMap((node) => (node.type === 'file' ? [node] : flattenFiles(node.children ?? [])));
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 export function Sidebar() {
   return (
     <aside className="glass sidebar">
-      <h1>UltraGen AI</h1>
-      <p>Cyberpunk control plane for multimodal generation.</p>
+      <h1>X-Builder AI</h1>
+      <p>Dark cyber-minimal workspace for autonomous software/media generation.</p>
       <div className="stack-list">
         <span>
-          <BrainCircuit size={14} /> Brain Orchestrator
+          <Sparkles size={14} /> Next.js Orchestrator
         </span>
         <span>
-          <Lock size={14} /> Clerk + Stripe + Upstash
+          <FileCode2 size={14} /> VFS + Monaco + WebContainer/Sandpack
         </span>
         <span>
-          <Cloud size={14} /> Vercel + GitHub Sync
+          <Cloud size={14} /> GitHub Push + Vercel Deploy + Stripe Credits
         </span>
       </div>
-      <nav>
-        {modules.map(({ icon: Icon, label }) => (
-          <a key={label} className="nav-item" href="#">
-            <Icon size={16} />
-            {label}
-          </a>
-        ))}
-      </nav>
     </aside>
   );
 }
 
 type StudioHeaderProps = {
   onResult: (result: GenerationResult) => void;
+  onPrompt: (value: string) => void;
+  onStatus: (value: StreamStatus) => void;
+  onPlan: (value: PlanStep[]) => void;
+  onLogs: (value: string[]) => void;
+  onTree: (value: VfsNode[]) => void;
 };
 
-export function StudioHeader({ onResult }: StudioHeaderProps) {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [web, setWeb] = useState(true);
-  const [mobile, setMobile] = useState(true);
-  const [image, setImage] = useState(false);
-  const [video, setVideo] = useState(false);
-  const [language, setLanguage] = useState<'darija' | 'ar' | 'en'>('darija');
-  const [provider, setProvider] = useState<ProviderName | 'auto'>('auto');
-  const [qualityMode, setQualityMode] = useState<QualityMode>('balanced');
-  const [productType, setProductType] = useState('Taxi / Mobility');
-  const [targetUsers, setTargetUsers] = useState('Urban users in Morocco');
-  const [goal, setGoal] = useState('Launch MVP in 30 days with payments + maps');
+export function StudioHeader({ onResult, onPrompt, onStatus, onPlan, onLogs, onTree }: StudioHeaderProps) {
   const [prompt, setPrompt] = useState(
-    'Bghit app dyal t-takssiyat f l-meghrib b darija, m3a web dashboard, image branding, w video promo.'
+    'Build a full-stack SaaS + mobile companion app with AI chat, Stripe billing, and media studio for image/video generation.'
   );
-  const [status, setStatus] = useState<'idle' | 'running' | 'success' | 'error'>('idle');
-  const [stream, setStream] = useState('> UltraGen Brain ready. Waiting for mission...');
-
-  const outputTypes = useMemo<OutputType[]>(() => {
-    return [web ? 'web' : null, mobile ? 'mobile' : null, image ? 'image' : null, video ? 'video' : null].filter(
-      (value): value is OutputType => value !== null
-    );
-  }, [web, mobile, image, video]);
-
-  useEffect(() => {
-    if (status !== 'running') return;
-
-    const frames = [
-      '> Parsing multilingual prompt (Darija/Arabic/English)...',
-      '> Routing to modules: /web /mobile /image /video',
-      '> Building files + preview sandbox + deployment manifests...',
-      '> Packaging ZIP + GitHub sync plan + Vercel deploy hook...'
-    ];
-
-    let index = 0;
-    const timer = setInterval(() => {
-      setStream(frames[index] ?? frames[frames.length - 1]);
-      index += 1;
-      if (index > frames.length - 1) clearInterval(timer);
-    }, 850);
-
-    return () => clearInterval(timer);
-  }, [status]);
+  const [status, setStatus] = useState<StreamStatus>('idle');
 
   async function handleGenerate() {
-    if (outputTypes.length === 0 || prompt.trim().length === 0) {
+    if (!prompt.trim()) {
       setStatus('error');
-      setStream('> Error: choose at least one module and provide a valid prompt.');
+      onStatus('error');
       return;
     }
 
-    setStatus('running');
+    setStatus('streaming');
+    onStatus('streaming');
+    onPrompt(prompt);
 
-    try {
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompt: `${prompt}\n\nProduct: ${productType}\nTarget users: ${targetUsers}\nMain goal: ${goal}`,
-          language,
-          provider,
-          qualityMode,
-          outputTypes
-        })
-      });
+    const steps: PlanStep[] = [
+      { id: 's1', title: 'Orchestrator: break prompt into actionable execution plan', status: 'running' },
+      { id: 's2', title: 'Create VFS tree: web/mobile/media/api folders and starter files', status: 'pending' },
+      { id: 's3', title: 'Bridge models: Claude (code), Flux/DALL·E (image), Luma (video)', status: 'pending' },
+      { id: 's4', title: 'Prepare deploy hooks: GitHub push + Vercel deploy button + Stripe usage', status: 'pending' }
+    ];
 
-      const data = (await response.json()) as {
-        ok: boolean;
-        result?: GenerationResult;
-        error?: string;
-      };
+    const logs = ['[boot] X-Builder runtime initialized'];
+    onPlan(steps);
+    onLogs(logs);
 
-      if (!response.ok || !data.ok || !data.result) {
-        throw new Error(data.error ?? 'Generation failed.');
+    await sleep(700);
+    logs.push('[planner] Prompt analyzed and intent graph generated');
+    onLogs([...logs]);
+
+    steps[0].status = 'done';
+    steps[1].status = 'running';
+    onPlan([...steps]);
+    await sleep(850);
+
+    const generatedTree: VfsNode[] = [
+      {
+        name: 'src',
+        type: 'folder',
+        children: [
+          {
+            name: 'app/page.tsx',
+            type: 'file',
+            content:
+              "export default function Home(){return <main className='bg-black text-indigo-300'>X-Builder App</main>}"
+          },
+          { name: 'components/chat-sidebar.tsx', type: 'file', content: 'export function ChatSidebar(){return null;}' },
+          { name: 'components/terminal.tsx', type: 'file', content: 'export function Terminal(){return null;}' }
+        ]
+      },
+      { name: 'api', type: 'folder', children: [{ name: 'generate/route.ts', type: 'file', content: '// stream plan chunks' }] },
+      { name: 'mobile', type: 'folder', children: [{ name: 'App.tsx', type: 'file', content: 'export default function App(){return null;}' }] },
+      {
+        name: 'media',
+        type: 'folder',
+        children: [
+          { name: 'image-prompts.md', type: 'file', content: '# Flux / DALL·E prompts' },
+          { name: 'video-storyboard.md', type: 'file', content: '# Luma scenes' }
+        ]
       }
+    ];
 
-      setStatus('success');
-      setStream(`> Success: ${data.result.summary}`);
-      onResult(data.result);
-    } catch (error) {
-      setStatus('error');
-      setStream(`> Failure: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+    onTree(generatedTree);
+    logs.push('[vfs] Virtual file system generated (10 files)');
+    onLogs([...logs]);
+
+    steps[1].status = 'done';
+    steps[2].status = 'running';
+    onPlan([...steps]);
+    await sleep(800);
+
+    logs.push('[bridge] Model routing completed: anthropic + replicate/openai + luma');
+    onLogs([...logs]);
+
+    steps[2].status = 'done';
+    steps[3].status = 'running';
+    onPlan([...steps]);
+    await sleep(800);
+
+    logs.push('[deploy] Deployment actions configured for GitHub and Vercel');
+    onLogs([...logs]);
+
+    steps[3].status = 'done';
+    onPlan([...steps]);
+
+    const result: GenerationResult = {
+      id: crypto.randomUUID(),
+      status: 'complete',
+      summary: 'Initial architecture generated with orchestrator plan, VFS, model-bridge hints, and deploy hooks.',
+      providerUsed: 'anthropic',
+      deliverables: [
+        'Full-stack web scaffold + mobile starter',
+        'Image prompt pack (Flux / DALL·E)',
+        'Video storyboard plan (Luma Dream Machine)',
+        'GitHub + Vercel deployment workflow'
+      ],
+      previewHtml: `<!doctype html><html><body style="margin:0;background:#050505;color:#e4e4e7;font-family:Inter;padding:24px"><h1 style="color:#818cf8">X-Builder AI</h1><p>Prompt accepted and architecture staged.</p><ul><li>Orchestrator Plan ✅</li><li>VFS Tree ✅</li><li>Bridge Models ✅</li><li>Deploy Hooks ✅</li></ul></body></html>`,
+      codeSample: defaultCode
+    };
+
+    onResult(result);
+    setStatus('done');
+    onStatus('done');
+    logs.push('[done] Streaming finished successfully');
+    onLogs([...logs]);
   }
 
   return (
     <Card>
       <div className="studio-head">
         <div>
-          <h2>UltraGen Mission Console</h2>
-          <p>Multi-step AI generation workflow with central Brain routing.</p>
+          <h2>Prompt → Plan → Code Stream</h2>
+          <p>Central Next.js orchestrator for web/mobile/media generation.</p>
         </div>
         <div className={`status status-${status}`}>
-          {status === 'running' ? <LoaderCircle className="spin" size={16} /> : <Zap size={16} />}
-          {status === 'running' ? 'Generating' : status === 'success' ? 'Completed' : 'Ready'}
+          {status === 'streaming' ? <LoaderCircle className="spin" size={15} /> : <Sparkles size={15} />}
+          {status === 'streaming' ? 'Streaming' : status === 'done' ? 'Ready' : 'Idle'}
         </div>
       </div>
-
-      <div className="steps">
-        {[1, 2, 3].map((step) => (
-          <button
-            key={step}
-            className={`step ${currentStep === step ? 'step-active' : ''}`}
-            onClick={() => setCurrentStep(step)}
-          >
-            Step {step}
-          </button>
-        ))}
-      </div>
-
-      {currentStep === 1 && (
-        <div className="settings-grid">
-          <label className="field">
-            Product Type
-            <input value={productType} onChange={(event) => setProductType(event.target.value)} />
-          </label>
-          <label className="field">
-            Target Users
-            <input value={targetUsers} onChange={(event) => setTargetUsers(event.target.value)} />
-          </label>
-          <label className="field">
-            Launch Goal
-            <input value={goal} onChange={(event) => setGoal(event.target.value)} />
-          </label>
-        </div>
-      )}
-
-      {currentStep === 2 && (
-        <div className="toggles">
-          <SwitchPill checked={web} onCheckedChange={setWeb} label="/web" />
-          <SwitchPill checked={mobile} onCheckedChange={setMobile} label="/mobile" />
-          <SwitchPill checked={image} onCheckedChange={setImage} label="/image" />
-          <SwitchPill checked={video} onCheckedChange={setVideo} label="/video" />
-        </div>
-      )}
-
-      {currentStep === 3 && (
-        <div className="settings-grid">
-          <div className="language-row">
-            <small>Language</small>
-            <div className="lang-switches">
-              {[
-                { code: 'darija', label: 'Darija' },
-                { code: 'ar', label: 'العربية' },
-                { code: 'en', label: 'English' }
-              ].map((lang) => (
-                <button
-                  key={lang.code}
-                  className={`lang-pill ${language === lang.code ? 'lang-pill-active' : ''}`}
-                  onClick={() => setLanguage(lang.code as 'darija' | 'ar' | 'en')}
-                >
-                  {lang.label}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="language-row">
-            <small>AI Router</small>
-            <div className="lang-switches">
-              {providerOptions.map((option) => (
-                <button
-                  key={option.code}
-                  className={`lang-pill ${provider === option.code ? 'lang-pill-active' : ''}`}
-                  onClick={() => setProvider(option.code)}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="language-row">
-            <small>Quality</small>
-            <div className="lang-switches">
-              {qualityOptions.map((mode) => (
-                <button
-                  key={mode.code}
-                  className={`lang-pill ${qualityMode === mode.code ? 'lang-pill-active' : ''}`}
-                  onClick={() => setQualityMode(mode.code)}
-                >
-                  {mode.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
 
       <div className="prompt-shell">
-        <Languages size={16} />
-        <input
-          placeholder="Bghit SaaS... | أريد منصة... | Build a platform..."
-          value={prompt}
-          onChange={(event) => setPrompt(event.target.value)}
-        />
-      </div>
-
-      <motion.pre className="terminal" initial={{ opacity: 0.4 }} animate={{ opacity: 1 }}>
-        {stream}
-      </motion.pre>
-
-      <div className="generate-row">
-        <Button onClick={() => void handleGenerate()} disabled={status === 'running'}>
-          {status === 'running' ? <LoaderCircle className="spin" size={14} /> : <Rocket size={14} />}
-          {status === 'running' ? 'Generating...' : 'Run UltraGen Brain'}
+        <input value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="Describe your product..." />
+        <Button onClick={() => void handleGenerate()} disabled={status === 'streaming'}>
+          {status === 'streaming' ? <LoaderCircle className="spin" size={14} /> : <Send size={14} />}
+          Prompt to Code
         </Button>
-        <small>Modules: {outputTypes.join(', ') || 'none'}</small>
       </div>
     </Card>
   );
@@ -292,13 +240,13 @@ export function FeatureBar() {
   return (
     <div className="feature-bar">
       <Button variant="outline">
-        <Github size={14} /> Sync to GitHub
+        <Github size={14} /> Push to Repo
       </Button>
       <Button>
-        <Cloud size={14} /> One-Click Deploy (Vercel API)
+        <Cloud size={14} /> Vercel Deploy Button
       </Button>
       <Button variant="pro">
-        <CreditCard size={14} /> Stripe Credits & Plans
+        <CreditCard size={14} /> Stripe Credits
       </Button>
     </div>
   );
@@ -306,46 +254,117 @@ export function FeatureBar() {
 
 type WorkspaceProps = {
   result: GenerationResult | null;
+  plan: PlanStep[];
+  logs: string[];
+  tree: VfsNode[];
+  streamStatus: StreamStatus;
+  prompt: string;
 };
 
-export function Workspace({ result }: WorkspaceProps) {
-  const code =
-    result?.codeSample ??
-    `// app/web/page.tsx
-export default function HomePage() {
-  return <main className="min-h-screen bg-zinc-950 text-emerald-300">UltraGen AI</main>;
-}`;
+export function Workspace({ result, plan, logs, tree, streamStatus, prompt }: WorkspaceProps) {
+  const files = useMemo(() => flattenFiles(tree), [tree]);
+  const [selectedFile, setSelectedFile] = useState('app/page.tsx');
+  const selectedContent = files.find((file) => file.name === selectedFile)?.content ?? result?.codeSample ?? defaultCode;
 
-  const webPreview =
-    result?.previewHtml ??
-    `<html><body style="margin:0;background:#04050a;color:#67e8f9;font-family:Inter;padding:20px"><h2>Web Preview Sandbox</h2><p>Generated React/Tailwind UI appears here.</p></body></html>`;
+  const chatHistory: ChatMessage[] = [
+    { id: 'm1', role: 'assistant', text: 'Welcome to X-Builder AI. Describe what you want to build.' },
+    ...(prompt
+      ? [
+          { id: 'm2', role: 'user', text: prompt },
+          {
+            id: 'm3',
+            role: 'assistant',
+            text:
+              streamStatus === 'streaming'
+                ? 'Streaming architecture plan now...'
+                : 'Plan generated. You can inspect VFS, code editor, preview, and terminal logs.'
+          }
+        ]
+      : [])
+  ];
 
   return (
-    <section className="workspace">
-      <Card className="editor">
-        <div className="editor-head">
-          <h3>Multi-file Editor (Monaco-ready)</h3>
-          <div>
-            <span>{result?.providerUsed ?? 'demo'}</span>
-            <span>{result?.status ?? 'ready'}</span>
-          </div>
+    <section className="workspace-grid">
+      <Card className="chat-panel">
+        <h3>
+          <Bot size={15} /> AI Chat + History
+        </h3>
+        <div className="chat-list">
+          {chatHistory.map((msg) => (
+            <div key={msg.id} className={`chat-msg chat-${msg.role}`}>
+              <strong>{msg.role === 'assistant' ? 'AI' : 'You'}</strong>
+              <p>{msg.text}</p>
+            </div>
+          ))}
         </div>
-        <pre>{code}</pre>
       </Card>
 
-      <Card className="preview">
-        <h3>Real-time Preview Sandbox</h3>
-        <div className="preview-grid">
-          <iframe title="web-preview" srcDoc={webPreview} />
-          <div className="phone-mockup">
-            <div className="phone-screen">
-              <p>Mobile Emulator</p>
-              <small>React Native / Flutter render</small>
-            </div>
-          </div>
+      <Card className="vfs-panel">
+        <h3>
+          <FolderTree size={15} /> Virtual File System
+        </h3>
+        <div className="tree-list">
+          {tree.map((node) => (
+            <VfsTreeNode key={node.name} node={node} onSelect={setSelectedFile} />
+          ))}
         </div>
       </Card>
+
+      <Card className="editor-panel">
+        <h3>
+          <FileCode2 size={15} /> Monaco Editor (layout)
+        </h3>
+        <p className="editor-file">{selectedFile}</p>
+        <pre>{selectedContent}</pre>
+      </Card>
+
+      <Card className="preview-panel">
+        <h3>
+          <Play size={15} /> Real-time Preview (WebContainer / Sandpack slot)
+        </h3>
+        <iframe title="preview" srcDoc={result?.previewHtml ?? previewStub} />
+      </Card>
+
+      <Card className="terminal-panel">
+        <h3>
+          <TerminalSquare size={15} /> Terminal Stream
+        </h3>
+        <pre>{logs.join('\n') || '[idle] waiting for prompt...'}</pre>
+      </Card>
+
+      <Card className="plan-panel">
+        <h3>Orchestrator Plan</h3>
+        <ol className="plan-list">
+          {plan.map((step) => (
+            <li key={step.id}>
+              <CheckCircle2 size={14} className={`plan-icon plan-${step.status}`} />
+              <span>{step.title}</span>
+            </li>
+          ))}
+        </ol>
+      </Card>
     </section>
+  );
+}
+
+function VfsTreeNode({ node, onSelect, depth = 0 }: { node: VfsNode; onSelect: (path: string) => void; depth?: number }) {
+  if (node.type === 'file') {
+    return (
+      <button className="tree-file" style={{ paddingLeft: `${12 + depth * 12}px` }} onClick={() => onSelect(node.name)}>
+        {node.name}
+      </button>
+    );
+  }
+
+  return (
+    <div>
+      <p className="tree-folder" style={{ paddingLeft: `${8 + depth * 12}px` }}>
+        {node.name}/
+      </p>
+      {node.children?.map((child) => (
+        <VfsTreeNode key={`${node.name}-${child.name}`} node={child} onSelect={onSelect} depth={depth + 1} />
+      ))}
+    </div>
   );
 }
 
@@ -354,28 +373,18 @@ type AssetGalleryProps = {
 };
 
 export function AssetGallery({ result }: AssetGalleryProps) {
-  const items = result?.deliverables ?? [
-    'app/web/* and app/mobile/* source',
-    'Prompt pack for Flux / DALL·E',
-    'Video scenes for Luma / Runway',
-    'Deployment scripts + vercel.json'
-  ];
+  const items = result?.deliverables ?? ['No deliverables yet. Run Prompt to Code.'];
 
   return (
     <Card>
-      <h3>Generated Deliverables</h3>
+      <h3>
+        <ImageIcon size={15} /> Generated Assets
+      </h3>
       <div className="asset-grid">
-        {items.map((item, idx) => (
-          <motion.div
-            key={item}
-            className="asset"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.06 }}
-          >
-            <CheckCircle2 size={16} />
-            <span>{item}</span>
-          </motion.div>
+        {items.map((item) => (
+          <div key={item} className="asset-item">
+            {item}
+          </div>
         ))}
       </div>
     </Card>
@@ -385,27 +394,22 @@ export function AssetGallery({ result }: AssetGalleryProps) {
 export function PricingModal() {
   return (
     <Card className="pricing-modal">
-      <h3>Monetization & Access</h3>
-      <div className="pricing-grid">
-        <div className="tier">
-          <strong>Free</strong>
-          <p>$0 / month</p>
-          <small>50 credits · shared compute</small>
+      <h3>Credits / Subscription Dashboard</h3>
+      <div className="tiers">
+        <div className="tier-box">
+          <strong>Starter</strong>
+          <p>250 monthly credits</p>
         </div>
-        <div className="tier tier-pro">
+        <div className="tier-box tier-pro">
           <strong>Pro</strong>
-          <p>$49 / month</p>
-          <small>2000 credits · GitHub sync · Vercel deploy</small>
+          <p>5,000 credits + team workspaces</p>
         </div>
-        <div className="tier">
-          <strong>Enterprise</strong>
-          <p>Custom</p>
-          <small>SSO, private models, dedicated cluster</small>
+        <div className="tier-box">
+          <strong>Scale</strong>
+          <p>Custom GPU pool + SSO</p>
         </div>
       </div>
-      <p className="stripe">
-        <UserCircle2 size={14} /> Clerk Auth (Google/GitHub) + Stripe Billing + credit metering.
-      </p>
+      <p className="billing-hint">Stripe integration ready for checkout + usage-based metering.</p>
     </Card>
   );
 }
@@ -413,14 +417,19 @@ export function PricingModal() {
 export function ArchitectureGuide() {
   return (
     <Card>
-      <h3>Professional Architecture (L-Architecture l-fenniya)</h3>
-      <ol className="guide-list">
-        <li>Brain Orchestrator parses prompt then routes to Web Builder, App Builder, Image Lab, or Video Studio.</li>
-        <li>Next.js API proxy keeps API keys server-side with per-user rate limiting through Upstash Redis.</li>
-        <li>JSZip bundles output files, then GitHub API creates repository and pushes generated structure.</li>
-        <li>One-click Vercel SDK deploy publishes production preview in ~30 seconds.</li>
-      </ol>
-      <p className="guide-paths">Core stack: Next.js 14 App Router + TypeScript + Shadcn UI + Framer Motion.</p>
+      <h3>Architecture Summary</h3>
+      <ul className="guide-list">
+        <li>Orchestrator in Next.js converts prompt to executable plan and streams progress.</li>
+        <li>VFS panel mirrors generated folders/files for web, mobile, and media tasks.</li>
+        <li>Editor + Preview + Terminal simulate autonomous generation loop.</li>
+        <li>Model bridge targets Claude (code), Flux/DALL·E (images), and Luma (video).</li>
+        <li>Deployment engine exposes GitHub push + Vercel deploy actions.</li>
+      </ul>
+      <p className="video-hint">
+        <Video size={14} /> Dark cyber-minimal theme: Obsidian #050505 + Primary #6366f1.
+      </p>
     </Card>
   );
 }
+
+export type { PlanStep, StreamStatus, VfsNode };
