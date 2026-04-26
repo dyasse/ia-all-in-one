@@ -1,132 +1,122 @@
 'use client';
 
-import { FormEvent, useMemo, useState } from 'react';
-import { LoaderCircle, SendHorizonal } from 'lucide-react';
-import { generateWithApi } from '@/lib/generation-client';
-import type { GenerationResult } from '@/types/generation';
+import { useMemo, useState } from 'react';
+import { Heart, MessageCircle, Plus, Share2 } from 'lucide-react';
 
-type ChatMessage = {
+type Episode = {
   id: string;
-  role: 'user' | 'assistant';
-  text: string;
+  title: string;
+  show: string;
+  creator: string;
+  caption: string;
+  tags: string[];
+  likes: number;
+  comments: number;
+  shares: number;
+  gradient: string;
 };
 
-function formatAssistantReply(result: GenerationResult): string {
-  const lines = [
-    result.summary,
-    '',
-    `Provider: ${result.providerUsed}`,
-    'Deliverables:',
-    ...result.deliverables.map((item) => `- ${item}`)
-  ];
+const episodes: Episode[] = [
+  {
+    id: 'ep-01',
+    title: 'Episode 01 · New Campus',
+    show: 'Seoul Hearts',
+    creator: '@kori_studio',
+    caption: 'Bidaya dial serie romantique f Seoul 💫',
+    tags: ['#kdrama', '#romance', '#seoul'],
+    likes: 12400,
+    comments: 942,
+    shares: 415,
+    gradient: 'linear-gradient(160deg, #4338ca 0%, #0f172a 100%)'
+  },
+  {
+    id: 'ep-02',
+    title: 'Episode 02 · Secret Message',
+    show: 'Seoul Hearts',
+    creator: '@kori_studio',
+    caption: 'Ach ghadi ykoun dak secret DM? 👀',
+    tags: ['#kseries', '#viral', '#fyp'],
+    likes: 23100,
+    comments: 1722,
+    shares: 901,
+    gradient: 'linear-gradient(160deg, #be185d 0%, #111827 100%)'
+  },
+  {
+    id: 'ep-03',
+    title: 'Episode 03 · Rain Confession',
+    show: 'Seoul Hearts',
+    creator: '@kori_studio',
+    caption: 'Scene ta7t cheta li tal3at trending ☔',
+    tags: ['#kdramascene', '#love', '#series'],
+    likes: 31980,
+    comments: 2234,
+    shares: 1488,
+    gradient: 'linear-gradient(160deg, #0f766e 0%, #0f172a 100%)'
+  }
+];
 
-  return lines.join('\n');
+function formatCount(value: number): string {
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
+  if (value >= 1_000) return `${(value / 1_000).toFixed(1)}K`;
+  return String(value);
 }
 
 export default function Page() {
-  const [prompt, setPrompt] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [chat, setChat] = useState<ChatMessage[]>([
-    {
-      id: 'welcome',
-      role: 'assistant',
-      text: 'Salam 👋 Ana assistant dyalek. Kteb prompt dyalek b wodhôh, w ana njawebk b style bhal ChatGPT.'
-    }
-  ]);
+  const [savedIds, setSavedIds] = useState<string[]>([]);
 
-  const canSend = prompt.trim().length > 0 && !isLoading;
+  const savedCount = useMemo(() => savedIds.length, [savedIds]);
 
-  const helperText = useMemo(() => {
-    if (isLoading) return 'Kankhdem 3la talab dyalek...';
-    return 'Wadeh chno bghiti: app, page, feature, aw ay 7aja b details.';
-  }, [isLoading]);
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    const value = prompt.trim();
-    if (!value || isLoading) return;
-
-    const userMessage: ChatMessage = {
-      id: `u-${Date.now()}`,
-      role: 'user',
-      text: value
-    };
-
-    setChat((prev) => [...prev, userMessage]);
-    setPrompt('');
-    setError(null);
-    setIsLoading(true);
-
-    try {
-      const result = await generateWithApi(value, {
-        language: 'darija',
-        provider: 'auto',
-        qualityMode: 'balanced',
-        outputTypes: ['web']
-      });
-
-      setChat((prev) => [
-        ...prev,
-        {
-          id: `a-${result.id}`,
-          role: 'assistant',
-          text: formatAssistantReply(result)
-        }
-      ]);
-    } catch (requestError) {
-      const message = requestError instanceof Error ? requestError.message : 'W9e3 mochkil f generation.';
-      setError(message);
-      setChat((prev) => [
-        ...prev,
-        {
-          id: `a-error-${Date.now()}`,
-          role: 'assistant',
-          text: `Ma9dertch nkemmel daba: ${message}`
-        }
-      ]);
-    } finally {
-      setIsLoading(false);
-    }
+  function toggleSave(id: string) {
+    setSavedIds((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
   }
 
   return (
-    <main className="simple-chat-shell">
-      <section className="simple-chat-card">
-        <header className="chat-header">
-          <p className="chat-kicker">AI Builder</p>
-          <h1>Simple Chat Interface</h1>
-          <p>Kteb prompt dyalek hna, w ghadi njawebk b tari9a sahla w mdawza mzyan bhal ChatGPT.</p>
-        </header>
-
-        <div className="chat-stream" aria-live="polite">
-          {chat.map((message) => (
-            <article key={message.id} className={`chat-bubble ${message.role}`}>
-              <span className="chat-role">{message.role === 'user' ? 'You' : 'Assistant'}</span>
-              <p>{message.text}</p>
-            </article>
-          ))}
+    <main className="kori-shell">
+      <header className="kori-topbar">
+        <div>
+          <p className="kori-badge">KoriSeries</p>
+          <h1>App web b7al TikTok l K-Drama</h1>
         </div>
+        <p className="kori-stats">Saved episodes: {savedCount}</p>
+      </header>
 
-        <form className="prompt-form" onSubmit={(event) => void handleSubmit(event)}>
-          <label htmlFor="prompt">Prompt</label>
-          <div className="prompt-row">
-            <textarea
-              id="prompt"
-              value={prompt}
-              onChange={(event) => setPrompt(event.target.value)}
-              placeholder="Ex: Sift lia landing page simple b hero, pricing, w contact form"
-              rows={3}
-            />
-            <button type="submit" disabled={!canSend}>
-              {isLoading ? <LoaderCircle size={16} className="spin" /> : <SendHorizonal size={16} />}
-              <span>{isLoading ? 'Generating' : 'Send'}</span>
-            </button>
-          </div>
-          <p className="prompt-helper">{helperText}</p>
-          {error ? <p className="prompt-error">{error}</p> : null}
-        </form>
+      <section className="feed" aria-label="Kori short series feed">
+        {episodes.map((episode) => {
+          const isSaved = savedIds.includes(episode.id);
+
+          return (
+            <article key={episode.id} className="episode" style={{ background: episode.gradient }}>
+              <div className="overlay" />
+
+              <div className="episode-body">
+                <p className="show">{episode.show}</p>
+                <h2>{episode.title}</h2>
+                <p className="creator">{episode.creator}</p>
+                <p className="caption">{episode.caption}</p>
+                <p className="tags">{episode.tags.join(' ')}</p>
+              </div>
+
+              <aside className="actions">
+                <button onClick={() => toggleSave(episode.id)} className={isSaved ? 'active' : ''}>
+                  <Heart size={18} />
+                  <span>{isSaved ? 'Saved' : formatCount(episode.likes)}</span>
+                </button>
+                <button>
+                  <MessageCircle size={18} />
+                  <span>{formatCount(episode.comments)}</span>
+                </button>
+                <button>
+                  <Share2 size={18} />
+                  <span>{formatCount(episode.shares)}</span>
+                </button>
+                <button>
+                  <Plus size={18} />
+                  <span>Follow</span>
+                </button>
+              </aside>
+            </article>
+          );
+        })}
       </section>
     </main>
   );
