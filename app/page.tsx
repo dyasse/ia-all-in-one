@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Heart, MessageCircle, Plus, Share2 } from 'lucide-react';
+import { Heart, MessageCircle, Plus, Settings, Share2 } from 'lucide-react';
 
 type Episode = {
   id: string;
@@ -63,6 +63,7 @@ function formatCount(value: number): string {
 
 export default function Page() {
   const [savedIds, setSavedIds] = useState<string[]>([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const savedCount = useMemo(() => savedIds.length, [savedIds]);
 
@@ -73,11 +74,19 @@ export default function Page() {
   return (
     <main className="kori-shell">
       <header className="kori-topbar">
-        <div>
+        <div className="kori-brand">
           <p className="kori-badge">KoriSeries</p>
           <h1>App web b7al TikTok l K-Drama</h1>
         </div>
-        <p className="kori-stats">Saved episodes: {savedCount}</p>
+        <div className="kori-controls">
+          <p className="kori-stats">Saved episodes: {savedCount}</p>
+          <button className="kori-login" onClick={() => setIsLoggedIn((prev) => !prev)}>
+            {isLoggedIn ? 'Logged in' : 'Login'}
+          </button>
+          <button className="kori-settings" aria-label="Settings">
+            <Settings size={16} />
+          </button>
+        </div>
       </header>
 
       <section className="feed" aria-label="Kori short series feed">
