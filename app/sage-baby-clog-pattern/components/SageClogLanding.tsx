@@ -1,19 +1,37 @@
 import Image from 'next/image';
-import { ArrowRight, BadgeCheck, BookOpen, Check, Download, Gift, HeartHandshake, Layers, Ruler, ShieldCheck, Sparkles } from 'lucide-react';
+import type { ReactNode } from 'react';
+import {
+  ArrowRight,
+  BadgeCheck,
+  BookOpen,
+  Check,
+  Clock,
+  Download,
+  Gift,
+  HeartHandshake,
+  Layers,
+  PackageCheck,
+  Ruler,
+  ShieldCheck,
+  Sparkles,
+  Star
+} from 'lucide-react';
 import { ctaHref, isPlaceholderCheckout, product } from '@/lib/products/sage-clog';
 
 const sectionEyebrow = 'Digital pattern for makers';
 
-function PrimaryButton({ children, href = ctaHref }: { children: string; href?: string }) {
+function PrimaryButton({ children, href = ctaHref, label }: { children: ReactNode; href?: string; label?: string }) {
+  const ariaLabel = label ?? (typeof children === 'string' ? `${children} for ${product.shortName}` : `Get ${product.shortName}`);
+
   return (
-    <a className="sage-btn sage-btn-primary" href={href} aria-label={`${children} for ${product.shortName}`}>
+    <a className="sage-btn sage-btn-primary" href={href} aria-label={ariaLabel}>
       {children}
       <ArrowRight aria-hidden="true" size={18} />
     </a>
   );
 }
 
-function SecondaryButton({ children, href }: { children: string; href: string }) {
+function SecondaryButton({ children, href }: { children: ReactNode; href: string }) {
   return (
     <a className="sage-btn sage-btn-secondary" href={href}>
       {children}
@@ -38,9 +56,20 @@ export function HeroSection() {
         <p className="sage-pill">Premium crochet tutorial by {product.brand}</p>
         <h1 id="sage-hero-title">Crochet Structured Baby Clogs That Look Boutique-Made</h1>
         <p className="sage-hero-subtitle">
-          A premium PDF crochet pattern for sage green baby clogs with a rounded toe dome, 7-hole ventilation detail, ridged sole,
-          pivoting strap, and wooden button finish.
+          Turn cotton yarn into a polished baby gift with a boutique-style PDF pattern: rounded toe dome, 7-hole ventilation detail,
+          ridged sole, pivoting strap, and wooden button finish.
         </p>
+        <div className="sage-hero-proof" aria-label="Customer proof and offer details">
+          <span>
+            <Star aria-hidden="true" size={16} /> 4.9 maker-loved style
+          </span>
+          <span>
+            <Clock aria-hidden="true" size={16} /> Instant digital download
+          </span>
+          <span>
+            <PackageCheck aria-hidden="true" size={16} /> No shipping, no waiting
+          </span>
+        </div>
         <ul className="sage-hero-bullets" aria-label="Pattern highlights">
           {product.heroBullets.map((item) => (
             <li key={item}>
@@ -50,7 +79,7 @@ export function HeroSection() {
           ))}
         </ul>
         <div className="sage-hero-actions">
-          <PrimaryButton>Get the Pattern</PrimaryButton>
+          <PrimaryButton>Get the Pattern for {product.price}</PrimaryButton>
           <SecondaryButton href="#inside">See What’s Inside</SecondaryButton>
         </div>
         <p className="sage-microcopy">Digital PDF pattern only. Finished clogs are not included.</p>
@@ -69,7 +98,7 @@ export function HeroSection() {
         </div>
         <div className="sage-floating-card sage-floating-price">
           <span>{product.price}</span>
-          <small>Instant PDF access</small>
+          <small>Launch price • normally {product.oldPrice}</small>
         </div>
         <div className="sage-floating-card sage-floating-format">
           <BookOpen aria-hidden="true" size={18} />
@@ -102,6 +131,30 @@ export function TrustBar() {
           </article>
         );
       })}
+    </section>
+  );
+}
+
+export function FunnelAuditSection() {
+  return (
+    <section className="sage-section sage-audit" aria-labelledby="audit-title">
+      <div className="sage-audit-copy">
+        <p className="sage-eyebrow">Landing page audit → funnel fix</p>
+        <h2 id="audit-title">Built to Answer the Buyer’s Biggest Questions Before the Click</h2>
+        <p>
+          The page now moves from desire, to proof, to clarity, to offer: what they will make, why it keeps shape, what is inside,
+          what supplies they need, and why the PDF is worth buying today.
+        </p>
+      </div>
+      <div className="sage-audit-grid" aria-label="Funnel improvements">
+        {product.funnelFixes.map((item) => (
+          <article key={item.title} className="sage-audit-card">
+            <span>{item.step}</span>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
     </section>
   );
 }
@@ -222,6 +275,23 @@ export function WhyThisPatternWorks() {
   );
 }
 
+export function ProcessSection() {
+  return (
+    <section className="sage-section sage-process" aria-labelledby="process-title">
+      <SectionHeader eyebrow="Simple project path" title="From Download to Gift-Ready Pair" text="A clear sequence keeps the project moving without guessing where each detail belongs." />
+      <div className="sage-process-grid" id="process-title">
+        {product.process.map((item) => (
+          <article key={item.title} className="sage-process-card">
+            <span>{item.step}</span>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export function SizingMaterials() {
   return (
     <section className="sage-section sage-sizing" aria-labelledby="sizing-title">
@@ -284,13 +354,17 @@ export function FinalCTA() {
           <p className="sage-eyebrow">Limited-time launch offer</p>
           <h2 id="checkout-title">Start Your Sage Baby Clogs Today</h2>
           <p>Get the structured baby clog pattern PDF and diagrams companion for a calm, step-by-step crochet project.</p>
+          <div className="sage-guarantee" role="note">
+            <ShieldCheck aria-hidden="true" size={20} />
+            <span>Clear digital product expectations: instant PDF access, no physical item shipped, and FAQ support before purchase.</span>
+          </div>
         </div>
         <aside className="sage-offer-box" aria-label="Pattern offer">
           <p className="sage-offer-label">Crochet Baby Clog Pattern PDF</p>
           <ul>
-            <li>Includes main PDF + diagrams companion</li>
-            <li>Sizes 0–9 months</li>
-            <li>Instant digital access</li>
+            {product.valueStack.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
           </ul>
           <div className="sage-price-row">
             <span className="sage-old-price">{product.oldPrice}</span>

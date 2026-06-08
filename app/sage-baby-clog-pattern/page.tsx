@@ -2,8 +2,10 @@ import type { Metadata } from 'next';
 import {
   FAQSection,
   FinalCTA,
+  FunnelAuditSection,
   HeroSection,
   ProblemSolution,
+  ProcessSection,
   ProductGallery,
   ReviewsSection,
   SizingMaterials,
@@ -62,11 +64,13 @@ export default function SageBabyClogPatternPage() {
       <div className="sage-announcement">Digital PDF Pattern Only • Instant Download • Sizes 0–9 Months</div>
       <HeroSection />
       <TrustBar />
+      <FunnelAuditSection />
       <ProblemSolution />
       <ProductGallery />
       <WhatYouWillMake />
       <WhatsInside />
       <WhyThisPatternWorks />
+      <ProcessSection />
       <SizingMaterials />
       <ReviewsSection />
       <FinalCTA />

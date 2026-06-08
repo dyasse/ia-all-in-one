@@ -275,10 +275,10 @@ export function Workspace({ result, plan, logs, tree, streamStatus, prompt }: Wo
     { id: 'm1', role: 'assistant', text: 'Welcome to X-Builder AI. Describe what you want to build.' },
     ...(prompt
       ? [
-          { id: 'm2', role: 'user', text: prompt },
+          { id: 'm2', role: 'user' as const, text: prompt },
           {
             id: 'm3',
-            role: 'assistant',
+            role: 'assistant' as const,
             text:
               streamStatus === 'streaming'
                 ? 'Streaming architecture plan now...'

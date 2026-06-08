@@ -302,6 +302,30 @@ p {
   max-width: 710px;
 }
 
+.sage-hero-proof {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.sage-hero-proof span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid rgba(70, 84, 63, 0.14);
+  background: rgba(255, 250, 241, 0.72);
+  color: var(--sage-green-dark);
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-weight: 850;
+  padding: 8px 11px;
+}
+
+.sage-hero-proof svg {
+  color: var(--sage-wood);
+  fill: rgba(163, 111, 67, 0.16);
+}
+
 .sage-hero-bullets,
 .sage-check-list,
 .sage-offer-box ul {
@@ -442,6 +466,8 @@ p {
 }
 
 .sage-trust-card,
+.sage-audit-card,
+.sage-process-card,
 .sage-mini-card,
 .sage-feature-card,
 .sage-table-card,
@@ -486,6 +512,48 @@ p {
 .sage-section,
 .sage-final-cta {
   padding: 58px 0;
+}
+
+.sage-audit {
+  display: grid;
+  gap: 24px;
+  border-radius: 34px;
+  background:
+    linear-gradient(135deg, rgba(70, 84, 63, 0.1), rgba(255, 250, 241, 0.72)),
+    var(--sage-cream);
+  padding: 34px 16px;
+}
+
+.sage-audit-copy p:last-child {
+  color: var(--sage-muted);
+  font-size: 1.02rem;
+  line-height: 1.7;
+  margin-top: 14px;
+}
+
+.sage-audit-card,
+.sage-process-card {
+  display: grid;
+  gap: 10px;
+}
+
+.sage-audit-card span,
+.sage-process-card span {
+  width: fit-content;
+  border-radius: 999px;
+  background: rgba(70, 84, 63, 0.1);
+  color: var(--sage-green-dark);
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  padding: 7px 10px;
+  text-transform: uppercase;
+}
+
+.sage-audit-card p,
+.sage-process-card p {
+  color: var(--sage-muted);
+  line-height: 1.6;
 }
 
 .sage-problem {
@@ -557,13 +625,17 @@ p {
 }
 
 .sage-card-grid,
+.sage-audit-grid,
 .sage-feature-grid,
+.sage-process-grid,
 .sage-review-grid,
 .sage-sizing-grid {
   display: grid;
   gap: 14px;
 }
 
+.sage-audit-card,
+.sage-process-card,
 .sage-mini-card,
 .sage-feature-card,
 .sage-table-card,
@@ -577,6 +649,8 @@ p {
   gap: 14px;
 }
 
+.sage-audit-card h3,
+.sage-process-card h3,
 .sage-mini-card h3,
 .sage-feature-card h3,
 .sage-table-card h3 {
@@ -605,6 +679,41 @@ p {
 .sage-feature-card p {
   color: var(--sage-muted);
   line-height: 1.65;
+}
+
+.sage-process {
+  border-top: 1px solid rgba(70, 84, 63, 0.12);
+  border-bottom: 1px solid rgba(70, 84, 63, 0.12);
+}
+
+.sage-process-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.sage-process-card::after {
+  content: '';
+  position: absolute;
+  right: -24px;
+  top: -24px;
+  width: 96px;
+  height: 96px;
+  border-radius: 999px;
+  background: rgba(220, 228, 212, 0.55);
+}
+
+.sage-guarantee {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  border: 1px solid rgba(70, 84, 63, 0.13);
+  background: rgba(255, 250, 241, 0.72);
+  border-radius: 20px;
+  color: var(--sage-green-dark);
+  font-weight: 800;
+  line-height: 1.5;
+  padding: 14px;
 }
 
 .sage-table-card h3 {
@@ -828,7 +937,9 @@ p {
 
   .sage-trustbar,
   .sage-card-grid,
+  .sage-audit-grid,
   .sage-feature-grid,
+  .sage-process-grid,
   .sage-review-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -856,6 +967,7 @@ p {
   }
 
   .sage-soft-panel,
+  .sage-audit,
   .sage-reviews {
     padding: 52px;
   }
@@ -872,6 +984,7 @@ p {
   }
 
   .sage-feature-grid,
+  .sage-process-grid,
   .sage-review-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
