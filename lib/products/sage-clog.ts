@@ -54,6 +54,24 @@ export const product = {
       caption: "PDF pattern + diagrams"
     }
   ],
+
+  funnelFixes: [
+    {
+      step: "01",
+      title: "Sharper above-the-fold promise",
+      text: "Price, instant access, product format, and finished-result benefit are visible before the first scroll."
+    },
+    {
+      step: "02",
+      title: "Objection handling in sequence",
+      text: "The page clarifies digital-only delivery, skill level, sizes, materials, diagrams, and baby-safety notes before checkout."
+    },
+    {
+      step: "03",
+      title: "Stronger purchase bridge",
+      text: "A value stack, launch price, repeated CTAs, social proof, and sticky mobile bar keep the next action obvious."
+    }
+  ],
   makeCards: [
     "Rounded toe dome with 7-hole front",
     "Ridged platform-style sole",
@@ -73,6 +91,24 @@ export const product = {
     "Pivoting strap and button assembly",
     "Finishing, blocking, troubleshooting, and QA checklist"
   ],
+
+  process: [
+    {
+      step: "Step 1",
+      title: "Download the PDF",
+      text: "Open the main pattern and diagrams companion on your phone, tablet, or printout."
+    },
+    {
+      step: "Step 2",
+      title: "Build the sole and toe",
+      text: "Follow the structured foundation, rounded canopy, and centered ventilation layout."
+    },
+    {
+      step: "Step 3",
+      title: "Finish the boutique details",
+      text: "Add the corded rim, pivoting strap, wooden buttons, blocking, and final QA checks."
+    }
+  ],
   materials: [
     "Premium 100% cotton yarn, sage or olive green",
     "2.5 mm hook recommended",
@@ -81,6 +117,15 @@ export const product = {
     "Tapestry needle",
     "Scissors",
     "Optional EVA foam support"
+  ],
+
+  valueStack: [
+    "Main written PDF pattern in English",
+    "Diagrams/charts companion for visual support",
+    "Three baby sizes from 0–9 months",
+    "Structured sole, toe, strap, and finishing instructions",
+    "Gauge, materials, abbreviations, troubleshooting, and QA checklist",
+    "Instant digital access after checkout"
   ],
   reviews: [
     { quote: "These are adorable. I haven't started this project but I am looking forward to it.", author: "Sandra" },
