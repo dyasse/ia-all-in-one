@@ -1,6 +1,6 @@
 export const PRICE = "$4.99";
 export const OLD_PRICE = "$9.99";
-export const CHECKOUT_URL = "PASTE_CHECKOUT_LINK_HERE";
+export const CHECKOUT_URL = "https://friendkids.gumroad.com/l/clogs";
 export const SITE_URL = "https://dyasse.shop";
 export const UPDATED_AT = "2026-06-08";
 
@@ -175,5 +175,4 @@ export const product = {
 };
 
 export const canonicalUrl = `${SITE_URL}${product.route}`;
-export const isPlaceholderCheckout = CHECKOUT_URL === "PASTE_CHECKOUT_LINK_HERE";
-export const ctaHref = isPlaceholderCheckout ? "#checkout" : CHECKOUT_URL;
+export const ctaHref = CHECKOUT_URL;
