@@ -39,11 +39,11 @@ function SecondaryButton({ children, href }: { children: ReactNode; href: string
   );
 }
 
-function SectionHeader({ eyebrow = sectionEyebrow, title, text }: { eyebrow?: string; title: string; text?: string }) {
+function SectionHeader({ eyebrow = sectionEyebrow, id, title, text }: { eyebrow?: string; id?: string; title: string; text?: string }) {
   return (
     <div className="sage-section-header">
       <p className="sage-eyebrow">{eyebrow}</p>
-      <h2>{title}</h2>
+      <h2 id={id}>{title}</h2>
       {text ? <p>{text}</p> : null}
     </div>
   );
@@ -125,7 +125,7 @@ export function TrustBar() {
           <article key={item.title} className="sage-trust-card">
             <Icon aria-hidden="true" size={20} />
             <div>
-              <h2>{item.title}</h2>
+              <h3>{item.title}</h3>
               <p>{item.text}</p>
             </div>
           </article>
@@ -135,18 +135,19 @@ export function TrustBar() {
   );
 }
 
-export function FunnelAuditSection() {
+export function SEOContentSection() {
   return (
-    <section className="sage-section sage-audit" aria-labelledby="audit-title">
+    <section className="sage-section sage-audit" aria-labelledby="seo-content-title">
       <div className="sage-audit-copy">
-        <p className="sage-eyebrow">Landing page audit → funnel fix</p>
-        <h2 id="audit-title">Built to Answer the Buyer’s Biggest Questions Before the Click</h2>
+        <p className="sage-eyebrow">Crochet baby shoes pattern PDF</p>
+        <h2 id="seo-content-title">Structured Sage Green Baby Clogs for Handmade Gifts</h2>
         <p>
-          The page now moves from desire, to proof, to clarity, to offer: what they will make, why it keeps shape, what is inside,
-          what supplies they need, and why the PDF is worth buying today.
+          This crochet baby clog pattern is made for makers who want baby shoes with a neat boutique finish instead of soft,
+          shapeless booties. The instant-download PDF walks you through a firm sole, rounded 7-hole toe, pivoting strap, and
+          button details for a sweet baby shower gift or keepsake project.
         </p>
       </div>
-      <div className="sage-audit-grid" aria-label="Funnel improvements">
+      <div className="sage-audit-grid" aria-label="Crochet pattern benefits">
         {product.funnelFixes.map((item) => (
           <article key={item.title} className="sage-audit-card">
             <span>{item.step}</span>
@@ -179,10 +180,11 @@ export function ProductGallery() {
   return (
     <section className="sage-section" aria-labelledby="gallery-title">
       <SectionHeader
+        id="gallery-title"
         title="See the Shape, Texture, and Pattern Details"
         text="A clean visual overview of the finished inspiration and the digital tutorial experience."
       />
-      <div className="sage-gallery" id="gallery-title">
+      <div className="sage-gallery">
         {product.gallery.map((image, index) => (
           <figure key={image.src} className={index === 0 ? 'sage-gallery-item sage-gallery-featured' : 'sage-gallery-item'}>
             <Image src={image.src} alt={image.alt} fill sizes={index === 0 ? '(max-width: 900px) 100vw, 56vw' : '(max-width: 900px) 50vw, 24vw'} className="sage-image-cover" />
@@ -197,8 +199,8 @@ export function ProductGallery() {
 export function WhatYouWillMake() {
   return (
     <section className="sage-section sage-soft-panel" aria-labelledby="make-title">
-      <SectionHeader title="A Sweet Pair of Sage Green Baby Clogs" />
-      <div className="sage-card-grid" id="make-title">
+      <SectionHeader id="make-title" title="A Sweet Pair of Sage Green Baby Clogs" />
+      <div className="sage-card-grid">
         {product.makeCards.map((item) => (
           <article key={item} className="sage-mini-card">
             <BadgeCheck aria-hidden="true" size={20} />
@@ -223,8 +225,8 @@ export function WhatsInside() {
         />
       </div>
       <div>
-        <SectionHeader title="Everything You Need to Build the Shape Step by Step" />
-        <ul className="sage-check-list" id="inside-title">
+        <SectionHeader id="inside-title" title="Everything You Need to Build the Shape Step by Step" />
+        <ul className="sage-check-list">
           {product.inside.map((item) => (
             <li key={item}>
               <Check aria-hidden="true" size={18} />
@@ -258,8 +260,8 @@ export function WhyThisPatternWorks() {
 
   return (
     <section className="sage-section" aria-labelledby="why-title">
-      <SectionHeader title="Designed for Structure, Not Just Softness" />
-      <div className="sage-feature-grid" id="why-title">
+      <SectionHeader id="why-title" title="Designed for Structure, Not Just Softness" />
+      <div className="sage-feature-grid">
         {features.map((feature) => {
           const Icon = feature.icon;
           return (
@@ -278,8 +280,13 @@ export function WhyThisPatternWorks() {
 export function ProcessSection() {
   return (
     <section className="sage-section sage-process" aria-labelledby="process-title">
-      <SectionHeader eyebrow="Simple project path" title="From Download to Gift-Ready Pair" text="A clear sequence keeps the project moving without guessing where each detail belongs." />
-      <div className="sage-process-grid" id="process-title">
+      <SectionHeader
+        id="process-title"
+        eyebrow="Simple project path"
+        title="From Download to Gift-Ready Pair"
+        text="A clear sequence keeps the project moving without guessing where each detail belongs."
+      />
+      <div className="sage-process-grid">
         {product.process.map((item) => (
           <article key={item.title} className="sage-process-card">
             <span>{item.step}</span>
@@ -295,8 +302,8 @@ export function ProcessSection() {
 export function SizingMaterials() {
   return (
     <section className="sage-section sage-sizing" aria-labelledby="sizing-title">
-      <SectionHeader title="Sizes & Materials" text="Clear sizing guidance and a practical supplies list before you begin." />
-      <div className="sage-sizing-grid" id="sizing-title">
+      <SectionHeader id="sizing-title" title="Sizes & Materials" text="Clear sizing guidance and a practical supplies list before you begin." />
+      <div className="sage-sizing-grid">
         <div className="sage-table-card">
           <h3>Sizes included</h3>
           <table>
@@ -333,8 +340,8 @@ export function SizingMaterials() {
 export function ReviewsSection() {
   return (
     <section className="sage-section sage-reviews" aria-labelledby="reviews-title">
-      <SectionHeader eyebrow="Selected customer feedback" title="Makers Are Excited to Create Them" />
-      <div className="sage-review-grid" id="reviews-title">
+      <SectionHeader id="reviews-title" eyebrow="Selected customer feedback" title="Makers Are Excited to Create Them" />
+      <div className="sage-review-grid">
         {product.reviews.map((review) => (
           <figure key={`${review.author}-${review.quote}`} className="sage-review-card">
             <blockquote>“{review.quote}”</blockquote>
@@ -389,8 +396,8 @@ export function FinalCTA() {
 export function FAQSection() {
   return (
     <section className="sage-section sage-faq" aria-labelledby="faq-title">
-      <SectionHeader title="Questions Before You Start" />
-      <div className="sage-faq-list" id="faq-title">
+      <SectionHeader id="faq-title" title="Questions Before You Start" />
+      <div className="sage-faq-list">
         {product.faqs.map((faq) => (
           <details key={faq.question} className="sage-faq-item">
             <summary>{faq.question}</summary>
