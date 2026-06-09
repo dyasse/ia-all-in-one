@@ -495,7 +495,7 @@ p {
   color: var(--sage-green-dark);
 }
 
-.sage-trust-card h2 {
+.sage-trust-card h3 {
   font-family: inherit;
   font-size: 0.98rem;
   letter-spacing: 0;

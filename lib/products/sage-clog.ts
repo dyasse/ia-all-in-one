@@ -1,8 +1,9 @@
 export const PRICE = "$4.99";
 export const OLD_PRICE = "$9.99";
 export const CHECKOUT_URL = "PASTE_CHECKOUT_LINK_HERE";
+export const SITE_URL = "https://dyasse.shop";
+export const UPDATED_AT = "2026-06-08";
 
-// Upload these image files manually to public/images/sage-clog/ before production launch.
 export const product = {
   name: "Crochet Baby Clog Pattern, Structured Sage Green Shoes Tutorial PDF Download",
   shortName: "Baby Clog Pattern PDF",
@@ -11,9 +12,17 @@ export const product = {
   oldPrice: OLD_PRICE,
   checkoutUrl: CHECKOUT_URL,
   route: "/sage-baby-clog-pattern",
-  seoTitle: "Crochet Baby Clog Pattern PDF | Structured Sage Green Baby Shoes Tutorial",
+  seoTitle: "Crochet Baby Clog Pattern PDF | Sage Green Baby Shoes Tutorial",
   seoDescription:
-    "Premium digital crochet pattern for structured sage green baby clogs with 7-hole toe detail, pivoting strap, diagrams, and sizes 0–9 months.",
+    "Download a structured crochet baby clog pattern PDF with diagrams, 7-hole rounded toe, pivoting strap, and sizes 0–9 months. Instant digital tutorial.",
+  keywords: [
+    "crochet baby clog pattern",
+    "crochet baby shoes pattern PDF",
+    "sage green baby clogs crochet pattern",
+    "structured baby booties crochet pattern",
+    "baby shower crochet gift pattern",
+    "instant download crochet pattern"
+  ],
   language: "English",
   skillLevel: "Confident beginner to intermediate / intermediate",
   sizes: [
@@ -165,5 +174,6 @@ export const product = {
   ]
 };
 
+export const canonicalUrl = `${SITE_URL}${product.route}`;
 export const isPlaceholderCheckout = CHECKOUT_URL === "PASTE_CHECKOUT_LINK_HERE";
 export const ctaHref = isPlaceholderCheckout ? "#checkout" : CHECKOUT_URL;
