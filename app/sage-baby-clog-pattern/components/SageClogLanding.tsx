@@ -16,11 +16,11 @@ import {
   Sparkles,
   Star
 } from 'lucide-react';
-import { ctaHref, isPlaceholderCheckout, product } from '@/lib/products/sage-clog';
+import { CHECKOUT_URL, product } from '@/lib/products/sage-clog';
 
 const sectionEyebrow = 'Digital pattern for makers';
 
-function PrimaryButton({ children, href = ctaHref, label }: { children: ReactNode; href?: string; label?: string }) {
+function PrimaryButton({ children, href = CHECKOUT_URL, label }: { children: ReactNode; href?: string; label?: string }) {
   const ariaLabel = label ?? (typeof children === 'string' ? `${children} for ${product.shortName}` : `Get ${product.shortName}`);
 
   return (
@@ -82,7 +82,7 @@ export function HeroSection() {
           <PrimaryButton>Get the Pattern for {product.price}</PrimaryButton>
           <SecondaryButton href="#inside">See What’s Inside</SecondaryButton>
         </div>
-        <p className="sage-microcopy">Digital PDF pattern only. Finished clogs are not included.</p>
+        <p className="sage-microcopy">Digital PDF pattern only. No physical product will be shipped.</p>
       </div>
 
       <div className="sage-hero-media" aria-label="Product preview">
@@ -378,8 +378,8 @@ export function FinalCTA() {
             <strong>{product.price}</strong>
           </div>
           <PrimaryButton>Get Instant Access</PrimaryButton>
+          <p className="sage-microcopy">Secure checkout and file delivery handled by Gumroad.</p>
           <p className="sage-microcopy">Digital PDF pattern only. No physical product will be shipped.</p>
-          {isPlaceholderCheckout ? <p className="sage-checkout-placeholder">Add your checkout link here</p> : null}
         </aside>
       </section>
 
@@ -387,6 +387,7 @@ export function FinalCTA() {
         <Gift aria-hidden="true" size={30} />
         <h2 id="final-cta-title">Make a Boutique-Style Baby Gift With Your Own Hands</h2>
         <PrimaryButton>Download the Pattern</PrimaryButton>
+        <p>Digital PDF pattern only. No physical product will be shipped.</p>
         <p>Instant PDF access • English instructions • Sizes 0–9 months</p>
       </section>
     </>
@@ -416,7 +417,7 @@ export function StickyMobileCTA() {
         <strong>{product.shortName}</strong>
         <span>{product.price}</span>
       </div>
-      <a href={ctaHref}>Get Pattern</a>
+      <a href={CHECKOUT_URL}>Get Pattern</a>
     </div>
   );
 }

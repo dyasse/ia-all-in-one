@@ -15,7 +15,7 @@ import {
   WhatYouWillMake,
   WhyThisPatternWorks
 } from './components/SageClogLanding';
-import { canonicalUrl, ctaHref, product, SITE_URL } from '@/lib/products/sage-clog';
+import { CHECKOUT_URL, canonicalUrl, product, SITE_URL } from '@/lib/products/sage-clog';
 
 const ogImage = '/images/sage-clog/hero-pair.jpg';
 
@@ -63,7 +63,6 @@ export const metadata: Metadata = {
 };
 
 export default function SageBabyClogPatternPage() {
-  const checkoutUrl = ctaHref.startsWith('http') ? ctaHref : canonicalUrl;
   const imageUrls = product.gallery.map((image) => `${SITE_URL}${image.src}`);
 
   const productJsonLd = {
@@ -87,7 +86,7 @@ export default function SageBabyClogPatternPage() {
       price: product.price.replace('$', ''),
       availability: 'https://schema.org/InStock',
       itemCondition: 'https://schema.org/NewCondition',
-      url: checkoutUrl
+      url: CHECKOUT_URL
     },
     review: product.reviews.map((review) => ({
       '@type': 'Review',
