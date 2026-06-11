@@ -2,6 +2,18 @@ export const PRICE = "$4.99";
 export const OLD_PRICE = "$9.99";
 export const CHECKOUT_URL = "https://friendkids.gumroad.com/l/clogs";
 export const SITE_URL = "https://dyasse.shop";
+
+export type CheckoutContentId = "hero_cta" | "offer_cta" | "sticky_mobile_cta" | "final_cta" | "gallery_cta";
+
+export function checkoutUrlForContent(contentId: CheckoutContentId) {
+  const url = new URL(CHECKOUT_URL);
+  url.searchParams.set("utm_source", "facebook");
+  url.searchParams.set("utm_medium", "paid_social");
+  url.searchParams.set("utm_campaign", "sage_clog_pattern");
+  url.searchParams.set("utm_content", contentId);
+
+  return url.toString();
+}
 export const UPDATED_AT = "2026-06-08";
 
 export const product = {
