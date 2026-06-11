@@ -15,6 +15,7 @@ import {
   WhatYouWillMake,
   WhyThisPatternWorks
 } from './components/SageClogLanding';
+import { MetaPixelViewContent } from './components/MetaPixelViewContent';
 import { CHECKOUT_URL, canonicalUrl, product, SITE_URL } from '@/lib/products/sage-clog';
 
 const ogImage = '/images/sage-clog/hero-pair.jpg';
@@ -159,6 +160,7 @@ export default function SageBabyClogPatternPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageJsonLd) }} />
+      <MetaPixelViewContent contentId="sage-baby-clog-pattern" />
       <div className="sage-announcement">Digital PDF Pattern Only • Instant Download • Sizes 0–9 Months</div>
       <HeroSection />
       <TrustBar />

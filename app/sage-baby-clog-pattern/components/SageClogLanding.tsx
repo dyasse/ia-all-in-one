@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import type { ReactNode } from 'react';
 import {
@@ -16,15 +18,21 @@ import {
   Sparkles,
   Star
 } from 'lucide-react';
-import { CHECKOUT_URL, product } from '@/lib/products/sage-clog';
+import { checkoutUrlForContent, product, type CheckoutContentId } from '@/lib/products/sage-clog';
+import { trackInitiateCheckout } from '@/lib/meta-pixel';
 
 const sectionEyebrow = 'Digital pattern for makers';
 
-function PrimaryButton({ children, href = CHECKOUT_URL, label }: { children: ReactNode; href?: string; label?: string }) {
+function PrimaryButton({ children, contentId, label }: { children: ReactNode; contentId: CheckoutContentId; label?: string }) {
   const ariaLabel = label ?? (typeof children === 'string' ? `${children} for ${product.shortName}` : `Get ${product.shortName}`);
 
   return (
-    <a className="sage-btn sage-btn-primary" href={href} aria-label={ariaLabel}>
+    <a
+      className="sage-btn sage-btn-primary"
+      href={checkoutUrlForContent(contentId)}
+      aria-label={ariaLabel}
+      onClick={() => trackInitiateCheckout(contentId)}
+    >
       {children}
       <ArrowRight aria-hidden="true" size={18} />
     </a>
@@ -79,7 +87,7 @@ export function HeroSection() {
           ))}
         </ul>
         <div className="sage-hero-actions">
-          <PrimaryButton>Get the Pattern for {product.price}</PrimaryButton>
+          <PrimaryButton contentId="hero_cta">Get the Pattern for {product.price}</PrimaryButton>
           <SecondaryButton href="#inside">See What’s Inside</SecondaryButton>
         </div>
         <p className="sage-microcopy">Digital PDF pattern only. No physical product will be shipped.</p>
@@ -377,7 +385,7 @@ export function FinalCTA() {
             <span className="sage-old-price">{product.oldPrice}</span>
             <strong>{product.price}</strong>
           </div>
-          <PrimaryButton>Get Instant Access</PrimaryButton>
+          <PrimaryButton contentId="offer_cta">Get Instant Access</PrimaryButton>
           <p className="sage-microcopy">Secure checkout and file delivery handled by Gumroad.</p>
           <p className="sage-microcopy">Digital PDF pattern only. No physical product will be shipped.</p>
         </aside>
@@ -386,7 +394,7 @@ export function FinalCTA() {
       <section className="sage-final-cta" aria-labelledby="final-cta-title">
         <Gift aria-hidden="true" size={30} />
         <h2 id="final-cta-title">Make a Boutique-Style Baby Gift With Your Own Hands</h2>
-        <PrimaryButton>Download the Pattern</PrimaryButton>
+        <PrimaryButton contentId="final_cta">Download the Pattern</PrimaryButton>
         <p>Digital PDF pattern only. No physical product will be shipped.</p>
         <p>Instant PDF access • English instructions • Sizes 0–9 months</p>
       </section>
@@ -417,7 +425,9 @@ export function StickyMobileCTA() {
         <strong>{product.shortName}</strong>
         <span>{product.price}</span>
       </div>
-      <a href={CHECKOUT_URL}>Get Pattern</a>
+      <a href={checkoutUrlForContent('sticky_mobile_cta')} onClick={() => trackInitiateCheckout('sticky_mobile_cta')}>
+        Get Pattern
+      </a>
     </div>
   );
 }
