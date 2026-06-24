@@ -1,0 +1,4 @@
+'use client';
+import { useState } from 'react';import { Footer, Header, etsyListingUrl } from '@/components/site';
+const cards=['Stand up for 30 seconds','Drink water','Clear one visible item','Send one message','Open notes and brain dump','Play one song','Step outside for one minute','Put phone across the room','Stretch your shoulders','Choose a 2-minute task'];
+export default function Page(){const [pick,setPick]=useState(cards[0]);return <><Header/><main><section><h1>Before you scroll, pick one reset.</h1><div className="grid">{cards.map(c=><button className="card" key={c} onClick={()=>setPick(c)}>{c}</button>)}</div><article className="card result"><h2>{pick}</h2><button className="btn" onClick={()=>setPick(cards[Math.floor(Math.random()*cards.length)])}>Pick My Reset</button><a className="btn secondary" href={etsyListingUrl}>Want more no-scroll options? Get the full printable menu.</a></article></section></main><Footer/></>}

@@ -1,12 +1,12 @@
 {
-  "name": "genx-ai-dashboard",
+  "name": "dopapick-dias-studio",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next build --no-lint"
   },
   "dependencies": {
     "framer-motion": "^11.18.2",

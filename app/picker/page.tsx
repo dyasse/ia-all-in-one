@@ -1,0 +1,2 @@
+import { DisclaimerBox, Footer, Header, Picker } from '@/components/site';
+export const metadata={title:'Free Dopamine Reset Picker'};export default function Page(){return <><Header/><main><section><h1>Pick one dopamine reset</h1><p className="lead">Choose your energy, time, and vibe. Get one tiny action, reward idea, and printable page match.</p><Picker/><DisclaimerBox/></section></main><Footer/></>}
