@@ -1,63 +1,6 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import Script from 'next/script';
-import { SITE_URL } from '@/lib/products/sage-clog';
+import { siteUrl } from '@/lib/config';
 import './globals.css';
-
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: {
-    default: 'dyasse shop',
-    template: '%s | dyasse shop'
-  },
-  description: 'Digital crochet patterns and handmade gift tutorials from dyasse shop.',
-  applicationName: 'dyasse shop'
-};
-
-export default function RootLayout({
-  children
-}: Readonly<{
-  children: ReactNode;
-}>) {
-  const metaPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID;
-
-  return (
-    <html lang="en">
-      <body>
-        {/* Set NEXT_PUBLIC_META_PIXEL_ID in Vercel Environment Variables. */}
-        {metaPixelId ? (
-          <>
-            <Script
-              id="meta-pixel"
-              strategy="afterInteractive"
-              dangerouslySetInnerHTML={{
-                __html: `
-                  !function(f,b,e,v,n,t,s)
-                  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-                  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-                  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-                  n.queue=[];t=b.createElement(e);t.async=!0;
-                  t.src=v;s=b.getElementsByTagName(e)[0];
-                  s.parentNode.insertBefore(t,s)}(window, document,'script',
-                  'https://connect.facebook.net/en_US/fbevents.js');
-                  fbq('init', ${JSON.stringify(metaPixelId)});
-                  fbq('track', 'PageView');
-                `
-              }}
-            />
-            <noscript>
-              <img
-                height="1"
-                width="1"
-                style={{ display: 'none' }}
-                src={`https://www.facebook.com/tr?id=${encodeURIComponent(metaPixelId)}&ev=PageView&noscript=1`}
-                alt=""
-              />
-            </noscript>
-          </>
-        ) : null}
-        {children}
-      </body>
-    </html>
-  );
-}
+export const metadata: Metadata = {metadataBase:new URL(siteUrl),title:{default:'DopaPick — Free ADHD Dopamine Menu Picker | dias studio',template:'%s | DopaPick'},description:'A free ADHD-friendly dopamine reset picker for low-energy days, scroll loops, task initiation support, and no-shame motivation. Connected to the printable Dopamine Menu + Action Picker System by dias studio.',keywords:['ADHD dopamine menu','dopamine menu picker','ADHD motivation','no-scroll reset','task initiation support','ADHD productivity tool','dopamine reset','ADHD planner printable','executive function support','low energy reset','dias studio'],openGraph:{title:'DopaPick — Free ADHD Dopamine Menu Picker',description:'Choose your energy, time, and vibe. Get one tiny dopamine reset you can start now.',images:['/og-image.png']},twitter:{card:'summary_large_image'}};
+export default function RootLayout({children}:{children:ReactNode}){return <html lang="en"><body>{children}</body></html>}

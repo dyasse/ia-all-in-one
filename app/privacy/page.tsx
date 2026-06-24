@@ -1,0 +1,2 @@
+import { Footer, Header } from '@/components/site';
+export default function Page(){return <><Header/><main><section><h1>Privacy</h1><p>DopaPick does not require an account.</p><p>Favorites and VIP unlock are saved in your browser using localStorage.</p><p>No personal health data is collected. Do not enter sensitive personal information.</p><p>This tool is for organization and routine support only.</p></section></main><Footer/></>}
